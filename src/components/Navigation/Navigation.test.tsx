@@ -22,6 +22,9 @@ test("renders", () => {
         within(mobileNavigation).getByRole("link", {name: "Overview"}),
     ).toHaveAttribute("href", "/")
     expect(
+        within(mobileNavigation).getByRole("link", {name: "Insights"}),
+    ).toHaveAttribute("href", "/insights")
+    expect(
         within(mobileNavigation).getByRole("link", {name: "Accounts"}),
     ).toHaveAttribute("href", "/accounts")
     expect(
@@ -31,6 +34,9 @@ test("renders", () => {
     expect(
         within(desktopNavigation).getByRole("link", {name: "Overview"}),
     ).toHaveAttribute("href", "/")
+    expect(
+        within(desktopNavigation).getByRole("link", {name: "Insights"}),
+    ).toHaveAttribute("href", "/insights")
     expect(
         within(desktopNavigation).getByRole("link", {name: "Accounts"}),
     ).toHaveAttribute("href", "/accounts")
