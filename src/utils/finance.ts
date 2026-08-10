@@ -16,6 +16,15 @@ export type FinanceChange = {
     percentage: number | null
 }
 
+export type SpendingCapture = {
+    date: string
+    spendingCents: number
+}
+
+export type SpendingTrendPoint = SpendingCapture & {
+    allTimeAverageCents: number
+}
+
 type CaptureBalanceInput = Pick<Balance, "amountCents"> & {
     accountCategory: Account["category"]
     accountName: Account["name"]
@@ -90,6 +99,26 @@ export const calculateChange = (
         amountCents,
         percentage: previousCents === 0 ? null : amountCents / previousCents,
     }
+}
+
+export const calculateSpendingTrend = (
+    captures: SpendingCapture[],
+): SpendingTrendPoint[] => {
+    const chronologicalCaptures = [...captures].sort((left, right) =>
+        left.date.localeCompare(right.date),
+    )
+
+    return chronologicalCaptures.map((capture, index) => {
+        const averageWindow = chronologicalCaptures.slice(0, index + 1)
+        const allTimeAverageCents = Math.round(
+            averageWindow.reduce(
+                (total, entry) => total + entry.spendingCents,
+                0,
+            ) / averageWindow.length,
+        )
+
+        return {...capture, allTimeAverageCents}
+    })
 }
 
 export const calculateCaptureSummary = (

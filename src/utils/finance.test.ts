@@ -5,6 +5,7 @@ import {
     calculateChange,
     calculateSnapshot,
     calculateSnapshotSeries,
+    calculateSpendingTrend,
     getSnapshotWindow,
 } from "~/utils/finance"
 
@@ -107,6 +108,28 @@ test("selects the latest snapshot window", () => {
 
     expect(getSnapshotWindow(snapshots, 2)).toEqual(snapshots.slice(-2))
     expect(getSnapshotWindow(snapshots, "all")).toEqual(snapshots)
+})
+
+test("calculates a cumulative all-time spending average", () => {
+    const startTime = Date.UTC(2025, 0, 1)
+    const weekInMilliseconds = 7 * 24 * 60 * 60 * 1000
+    const captures = Array.from({length: 54}, (_, week) => {
+        const date = new Date(startTime + week * weekInMilliseconds)
+            .toISOString()
+            .slice(0, 10)
+
+        return {
+            date,
+            spendingCents: week < 52 ? 100_000 : 200_000,
+        }
+    })
+
+    const trend = calculateSpendingTrend(captures)
+
+    expect(trend[0]?.allTimeAverageCents).toEqual(100_000)
+    expect(trend[51]?.allTimeAverageCents).toEqual(100_000)
+    expect(trend[52]?.allTimeAverageCents).toEqual(101_887)
+    expect(trend[53]?.allTimeAverageCents).toEqual(103_704)
 })
 
 test("calculates a capture summary and savings plan", () => {
