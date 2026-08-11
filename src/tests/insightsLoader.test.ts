@@ -67,6 +67,7 @@ test("loads weekly spending and its rolling average", async () => {
     expect(getAllBalances).toHaveBeenCalledWith(database)
     expect(getSettings).toHaveBeenCalledWith(database)
     expect(result.defaultWindow).toBe(52)
+    expect(result.snapshots).toHaveLength(4)
     expect(result.spending).toEqual([
         {
             date: "2026-07-17",

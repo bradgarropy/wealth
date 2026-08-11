@@ -1,14 +1,20 @@
 import {Link} from "react-router"
 
+import {AssetsProjectionChart} from "~/components/AssetsProjectionChart"
 import {SavingsChart, type SavingsPoint} from "~/components/SavingsChart"
 import {SpendingChart} from "~/components/SpendingChart"
-import type {SavingsRateTrendPoint, SpendingTrendPoint} from "~/utils/finance"
+import type {
+    FinanceSnapshot,
+    SavingsRateTrendPoint,
+    SpendingTrendPoint,
+} from "~/utils/finance"
 import {formatDate} from "~/utils/format"
 
 type InsightsProps = {
     defaultWindow: number
     savings: SavingsPoint[]
     savingsRate: SavingsRateTrendPoint[]
+    snapshots: FinanceSnapshot[]
     spending: SpendingTrendPoint[]
 }
 
@@ -16,6 +22,7 @@ const Insights = ({
     defaultWindow,
     savings,
     savingsRate,
+    snapshots,
     spending,
 }: InsightsProps) => {
     const latestDate = [...spending, ...savings]
@@ -98,6 +105,28 @@ const Insights = ({
                                 points={savings}
                                 ratePoints={savingsRate}
                             />
+                        </section>
+                    )}
+
+                    {snapshots.length > 0 && (
+                        <section
+                            className="min-w-0"
+                            aria-labelledby="projection-heading"
+                        >
+                            <div className="mb-6 space-y-1">
+                                <h2
+                                    className="text-xl font-semibold"
+                                    id="projection-heading"
+                                >
+                                    Retirement outlook
+                                </h2>
+                                <p className="text-sm text-muted-foreground">
+                                    Project total assets toward a retirement
+                                    target using adjustable growth scenarios.
+                                </p>
+                            </div>
+
+                            <AssetsProjectionChart snapshots={snapshots} />
                         </section>
                     )}
                 </div>

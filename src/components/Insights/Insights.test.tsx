@@ -25,6 +25,14 @@ test("renders the spending graph", () => {
                         twelveWeekRate: 0.8,
                     },
                 ]}
+                snapshots={[
+                    {
+                        assetsCents: 100_000_000,
+                        date: "2026-08-07",
+                        liabilitiesCents: 20_000_000,
+                        netWorthCents: 80_000_000,
+                    },
+                ]}
                 spending={[
                     {
                         date: "2026-08-07",
@@ -63,6 +71,12 @@ test("renders the spending graph", () => {
             name: "Twelve-week, fifty-two-week, and all-time savings rates over time",
         }),
     ).toBeInTheDocument()
+    expect(
+        screen.getByRole("heading", {name: "Retirement outlook"}),
+    ).toBeInTheDocument()
+    expect(
+        screen.getByRole("img", {name: "Historical and projected assets"}),
+    ).toBeInTheDocument()
 })
 
 test("renders an empty state", () => {
@@ -72,6 +86,7 @@ test("renders an empty state", () => {
                 defaultWindow={52}
                 savings={[]}
                 savingsRate={[]}
+                snapshots={[]}
                 spending={[]}
             />
         </MemoryRouter>,

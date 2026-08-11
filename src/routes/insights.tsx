@@ -7,6 +7,7 @@ import {getAllBalances, getSettings} from "~/db/queries"
 import {
     calculateCaptureSummary,
     calculateSavingsRateTrend,
+    calculateSnapshotSeries,
     calculateSpendingTrend,
     isSavingsTrackingDate,
 } from "~/utils/finance"
@@ -77,6 +78,7 @@ export const loader = async ({context}: Route.LoaderArgs) => {
 
     return {
         defaultWindow: settings.defaultWindow,
+        snapshots: calculateSnapshotSeries(balances),
         savings,
         savingsRate,
         spending: calculateSpendingTrend(captures),

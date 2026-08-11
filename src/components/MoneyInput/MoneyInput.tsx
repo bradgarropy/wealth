@@ -1,6 +1,7 @@
 import NumberInput from "~/components/NumberInput"
 
 type MoneyInputProps = {
+    ariaLabel?: string
     className?: string
     defaultValue?: number
     id: string
@@ -10,6 +11,7 @@ type MoneyInputProps = {
 }
 
 const MoneyInput = ({
+    ariaLabel,
     className,
     defaultValue,
     id,
@@ -20,6 +22,7 @@ const MoneyInput = ({
     return (
         <NumberInput
             addon="$"
+            ariaLabel={ariaLabel}
             className={className}
             defaultValue={defaultValue}
             format={{
