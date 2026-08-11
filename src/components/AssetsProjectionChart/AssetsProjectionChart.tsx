@@ -267,6 +267,55 @@ const AssetsProjectionChart = ({snapshots}: AssetsProjectionChartProps) => {
                     ),
           )
         : null
+    const scenarioTargetDates = latest
+        ? [
+              {
+                  color: "var(--financial-current)",
+                  dashed: false,
+                  label: "Current pace",
+                  year: historicalTargetYear,
+              },
+              {
+                  color: "var(--financial-positive)",
+                  dashed: true,
+                  label: "High",
+                  year: getTargetYear(
+                      latest.date,
+                      getYearsToTarget(
+                          latest.assetsCents,
+                          targetCents,
+                          expectedGrowth + range,
+                      ),
+                  ),
+              },
+              {
+                  color: "var(--foreground)",
+                  dashed: true,
+                  label: "Expected",
+                  year: getTargetYear(
+                      latest.date,
+                      getYearsToTarget(
+                          latest.assetsCents,
+                          targetCents,
+                          expectedGrowth,
+                      ),
+                  ),
+              },
+              {
+                  color: "var(--financial-negative)",
+                  dashed: true,
+                  label: "Low",
+                  year: getTargetYear(
+                      latest.date,
+                      getYearsToTarget(
+                          latest.assetsCents,
+                          targetCents,
+                          Math.max(expectedGrowth - range, 0),
+                      ),
+                  ),
+              },
+          ]
+        : []
     const points = useMemo(
         () =>
             buildProjection(
@@ -368,7 +417,7 @@ const AssetsProjectionChart = ({snapshots}: AssetsProjectionChartProps) => {
                 </label>
             </div>
 
-            <div className="grid grid-cols-2 border-y sm:grid-cols-4 sm:divide-x">
+            <div className="grid grid-cols-2 border-y sm:grid-cols-3 sm:divide-x">
                 <div className="py-5 pr-3 sm:px-5 sm:first:pl-0">
                     <p className="text-sm text-muted-foreground">
                         Current assets
@@ -391,15 +440,42 @@ const AssetsProjectionChart = ({snapshots}: AssetsProjectionChartProps) => {
                         {formatMoney(annualWithdrawalCents)}
                     </p>
                 </div>
-                <div className="border-t border-l py-5 pl-3 sm:border-t-0 sm:border-l-0 sm:px-5 sm:last:pr-0">
-                    <p className="text-sm text-muted-foreground">
-                        Current pace target date
-                    </p>
-                    <p className="mt-1 text-lg font-semibold tabular-nums">
-                        {historicalTargetYear ?? "Not reached"}
-                    </p>
-                </div>
             </div>
+
+            <section aria-labelledby="projection-target-dates-heading">
+                <h3
+                    className="mb-4 text-sm font-medium"
+                    id="projection-target-dates-heading"
+                >
+                    Target dates
+                </h3>
+                <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-4">
+                    {scenarioTargetDates.map(scenario => (
+                        <div
+                            className="bg-background p-4"
+                            key={scenario.label}
+                            aria-label={`${scenario.label} target date`}
+                        >
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <span
+                                    aria-hidden="true"
+                                    className="w-5 border-t-2"
+                                    style={{
+                                        borderColor: scenario.color,
+                                        borderStyle: scenario.dashed
+                                            ? "dashed"
+                                            : "solid",
+                                    }}
+                                />
+                                <span>{scenario.label}</span>
+                            </div>
+                            <p className="mt-1 text-lg font-semibold tabular-nums">
+                                {scenario.year ?? "Not reached"}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </section>
 
             <ChartContainer
                 aria-label="Historical and projected assets"
