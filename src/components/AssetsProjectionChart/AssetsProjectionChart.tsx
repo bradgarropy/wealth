@@ -43,7 +43,7 @@ const chartConfig = {
         legendStyle: "dashed",
     },
     historicalPaceAssetsCents: {
-        color: "var(--chart-2)",
+        color: "var(--financial-current)",
         label: "Current pace",
         legendStyle: "solid",
     },

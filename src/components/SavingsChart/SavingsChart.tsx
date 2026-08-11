@@ -33,7 +33,7 @@ import {
 
 const allocationChartConfig = {
     totalSavedCents: {
-        color: "var(--chart-1)",
+        color: "var(--financial-savings)",
         label: "Weekly savings",
     },
 } satisfies ChartConfig
@@ -50,7 +50,7 @@ const rateTrendChartConfig = {
         legendStyle: "solid",
     },
     twelveWeekRate: {
-        color: "var(--chart-1)",
+        color: "var(--financial-savings)",
         label: "12-week rate",
         legendStyle: "solid",
     },

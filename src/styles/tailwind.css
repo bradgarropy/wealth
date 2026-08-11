@@ -38,6 +38,12 @@
 
     --color-financial-negative-foreground: var(--financial-negative-foreground);
 
+    --color-financial-current: var(--financial-current);
+
+    --color-financial-savings: var(--financial-savings);
+
+    --color-financial-spending: var(--financial-spending);
+
     --color-financial-negative: var(--financial-negative);
 
     --color-financial-positive-foreground: var(--financial-positive-foreground);
@@ -107,6 +113,12 @@
     --financial-positive: var(--brand-green);
 
     --financial-negative: var(--brand-red);
+
+    --financial-current: #0284c7;
+
+    --financial-savings: var(--brand-green);
+
+    --financial-spending: #facc15;
 
     --financial-positive-foreground: color-mix(
         in srgb,
@@ -186,6 +198,12 @@
 }
 
 .dark {
+    --financial-current: #0284c7;
+
+    --financial-savings: var(--financial-positive);
+
+    --financial-spending: #facc15;
+
     --financial-positive-foreground: var(--financial-positive);
 
     --financial-negative-foreground: var(--financial-negative);

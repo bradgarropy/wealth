@@ -37,7 +37,7 @@ const chartConfig = {
         legendStyle: "dashed",
     },
     spendingCents: {
-        color: "var(--chart-1)",
+        color: "var(--financial-spending)",
         label: "Weekly spending",
     },
     fiftyTwoWeekAverageCents: {
@@ -46,7 +46,7 @@ const chartConfig = {
         legendStyle: "solid",
     },
     twelveWeekAverageCents: {
-        color: "var(--chart-1)",
+        color: "var(--financial-spending)",
         label: "12-week average",
         legendStyle: "solid",
     },
