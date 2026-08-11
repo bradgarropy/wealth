@@ -3,6 +3,7 @@ import {index, route} from "@react-router/dev/routes"
 
 const routes: RouteConfig = [
     index("./routes/index.tsx"),
+    route("insights", "./routes/insights.tsx"),
     route("accounts", "./routes/accounts.tsx"),
     route("account/:accountId", "./routes/account-summary.tsx"),
     route("capture", "./routes/capture.tsx"),

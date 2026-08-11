@@ -1,5 +1,6 @@
 import {
     ChartNoAxesCombinedIcon,
+    ChartSplineIcon,
     CirclePlusIcon,
     PlusIcon,
     SettingsIcon,
@@ -56,6 +57,15 @@ const Navigation = () => {
                     </NavLink>
 
                     <NavLink
+                        to="/insights"
+                        prefetch="intent"
+                        className={mobileLinkClassName}
+                    >
+                        <ChartSplineIcon className="size-5" />
+                        <span>Insights</span>
+                    </NavLink>
+
+                    <NavLink
                         to="/capture"
                         prefetch="intent"
                         className={mobileLinkClassName}
@@ -85,6 +95,14 @@ const Navigation = () => {
                     className={desktopLinkClassName}
                 >
                     Overview
+                </NavLink>
+
+                <NavLink
+                    to="/insights"
+                    prefetch="intent"
+                    className={desktopLinkClassName}
+                >
+                    Insights
                 </NavLink>
 
                 <NavLink

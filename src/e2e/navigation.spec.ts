@@ -22,6 +22,10 @@ test("navigates through primary and financial detail pages", async ({page}) => {
         name: "Desktop navigation",
     })
 
+    await navigation.getByRole("link", {name: "Insights"}).click()
+    await expect(page).toHaveTitle("wealth | insights")
+    await expect(page.getByRole("heading", {name: "Insights"})).toBeVisible()
+
     await navigation.getByRole("link", {name: "Accounts"}).click()
     await expect(page).toHaveTitle("wealth | accounts")
     await expect(page.getByRole("heading", {name: "Accounts"})).toBeVisible()

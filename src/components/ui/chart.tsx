@@ -15,6 +15,7 @@ export type ChartConfig = Record<
     {
         label?: React.ReactNode
         icon?: React.ComponentType
+        legendStyle?: "dashed" | "solid"
     } & (
         | {color?: string; theme?: never}
         | {color?: never; theme: Record<keyof typeof THEMES, string>}
@@ -345,6 +346,16 @@ function ChartLegendContent({
                         >
                             {itemConfig?.icon && !hideIcon ? (
                                 <itemConfig.icon />
+                            ) : itemConfig?.legendStyle ? (
+                                <div
+                                    aria-hidden="true"
+                                    className="w-5 shrink-0 border-t-2"
+                                    data-legend-style={itemConfig.legendStyle}
+                                    style={{
+                                        borderColor: item.color,
+                                        borderTopStyle: itemConfig.legendStyle,
+                                    }}
+                                />
                             ) : (
                                 <div
                                     className="h-2 w-2 shrink-0 rounded-[2px]"

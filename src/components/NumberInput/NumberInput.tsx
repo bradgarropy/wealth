@@ -11,6 +11,7 @@ import {cn} from "~/lib/utils"
 type NumberInputProps = {
     addon?: ReactNode
     addonAlign?: "inline-start" | "inline-end"
+    ariaLabel?: string
     className?: string
     defaultValue?: number
     format?: Intl.NumberFormatOptions
@@ -26,6 +27,7 @@ type NumberInputProps = {
 const NumberInput = ({
     addon,
     addonAlign = "inline-start",
+    ariaLabel,
     className,
     defaultValue,
     format,
@@ -53,6 +55,7 @@ const NumberInput = ({
                 render={<InputGroup className={cn("h-14", className)} />}
             >
                 <NumberField.Input
+                    aria-label={ariaLabel}
                     id={id}
                     data-slot="input-group-control"
                     className="h-full min-w-0 flex-1 bg-transparent px-4 text-right text-lg tabular-nums outline-none"

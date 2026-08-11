@@ -3,10 +3,57 @@ import {expect, test} from "vitest"
 import {
     calculateCaptureSummary,
     calculateChange,
+    calculateSavingsRateTrend,
     calculateSnapshot,
     calculateSnapshotSeries,
+    calculateSpendingTrend,
     getSnapshotWindow,
+    isSavingsTrackingDate,
 } from "~/utils/finance"
+
+test("calculates 12-week, 52-week, and all-time savings rates", () => {
+    const startTime = Date.UTC(2025, 0, 1)
+    const weekInMilliseconds = 7 * 24 * 60 * 60 * 1000
+    const captures = Array.from({length: 53}, (_, week) => ({
+        date: new Date(startTime + week * weekInMilliseconds)
+            .toISOString()
+            .slice(0, 10),
+        savedCents: week < 52 ? 100 : 300,
+        spendingCents: 100,
+    }))
+
+    const trend = calculateSavingsRateTrend(captures)
+
+    expect(trend[0]).toEqual({
+        allTimeRate: 0.5,
+        date: "2025-01-01",
+        fiftyTwoWeekRate: null,
+        twelveWeekRate: null,
+    })
+    expect(trend[11]?.twelveWeekRate).toEqual(0.5)
+    expect(trend[51]?.fiftyTwoWeekRate).toEqual(0.5)
+    expect(trend[52]).toEqual({
+        allTimeRate: 55 / 108,
+        date: "2025-12-31",
+        fiftyTwoWeekRate: 27 / 53,
+        twelveWeekRate: 7 / 13,
+    })
+})
+
+test("returns a zero all-time savings rate when there is no money", () => {
+    expect(
+        calculateSavingsRateTrend([
+            {date: "2026-01-01", savedCents: 0, spendingCents: 0},
+        ]),
+    ).toEqual([
+        {
+            allTimeRate: 0,
+            date: "2026-01-01",
+            fiftyTwoWeekRate: null,
+            twelveWeekRate: null,
+        },
+    ])
+})
 
 test("calculates absolute and percentage changes", () => {
     expect(calculateChange(125_000, 100_000)).toEqual({
@@ -107,6 +154,46 @@ test("selects the latest snapshot window", () => {
 
     expect(getSnapshotWindow(snapshots, 2)).toEqual(snapshots.slice(-2))
     expect(getSnapshotWindow(snapshots, "all")).toEqual(snapshots)
+})
+
+test("calculates a cumulative all-time spending average", () => {
+    const startTime = Date.UTC(2025, 0, 1)
+    const weekInMilliseconds = 7 * 24 * 60 * 60 * 1000
+    const captures = Array.from({length: 54}, (_, week) => {
+        const date = new Date(startTime + week * weekInMilliseconds)
+            .toISOString()
+            .slice(0, 10)
+
+        return {
+            date,
+            spendingCents: week < 52 ? 100_000 : 200_000,
+        }
+    })
+
+    const trend = calculateSpendingTrend(captures)
+
+    expect(trend[0]?.allTimeAverageCents).toEqual(100_000)
+    expect(trend[0]?.twelveWeekAverageCents).toBeNull()
+    expect(trend[0]?.fiftyTwoWeekAverageCents).toBeNull()
+    expect(trend[11]?.twelveWeekAverageCents).toEqual(100_000)
+    expect(trend[51]?.allTimeAverageCents).toEqual(100_000)
+    expect(trend[51]?.fiftyTwoWeekAverageCents).toEqual(100_000)
+    expect(trend[52]?.allTimeAverageCents).toEqual(101_887)
+    expect(trend[52]?.twelveWeekAverageCents).toEqual(108_333)
+    expect(trend[52]?.fiftyTwoWeekAverageCents).toEqual(101_923)
+    expect(trend[53]?.allTimeAverageCents).toEqual(103_704)
+    expect(trend[53]?.twelveWeekAverageCents).toEqual(116_667)
+    expect(trend[53]?.fiftyTwoWeekAverageCents).toEqual(103_846)
+})
+
+test("recognizes legacy and current savings tracking dates", () => {
+    expect(isSavingsTrackingDate("2025-08-15")).toBe(false)
+    expect(isSavingsTrackingDate("2025-09-15")).toBe(true)
+    expect(isSavingsTrackingDate("2025-09-21")).toBe(false)
+    expect(isSavingsTrackingDate("2025-12-15")).toBe(true)
+    expect(isSavingsTrackingDate("2025-12-31")).toBe(false)
+    expect(isSavingsTrackingDate("2026-01-01")).toBe(true)
+    expect(isSavingsTrackingDate("2026-08-09")).toBe(true)
 })
 
 test("calculates a capture summary and savings plan", () => {
