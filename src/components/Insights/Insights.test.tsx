@@ -9,11 +9,29 @@ test("renders the spending graph", () => {
         <MemoryRouter>
             <Insights
                 defaultWindow={52}
+                savings={[
+                    {
+                        date: "2026-08-07",
+                        investmentsSavedCents: 300_000,
+                        savingsSavedCents: 100_000,
+                        totalSavedCents: 400_000,
+                    },
+                ]}
+                savingsRate={[
+                    {
+                        allTimeRate: 0.7,
+                        date: "2026-08-07",
+                        fiftyTwoWeekRate: null,
+                        twelveWeekRate: 0.8,
+                    },
+                ]}
                 spending={[
                     {
                         date: "2026-08-07",
                         spendingCents: 100_000,
                         allTimeAverageCents: 90_000,
+                        fiftyTwoWeekAverageCents: 85_000,
+                        twelveWeekAverageCents: 95_000,
                     },
                 ]}
             />
@@ -33,7 +51,16 @@ test("renders the spending graph", () => {
     ).toBeInTheDocument()
     expect(
         screen.getByRole("img", {
-            name: "All-time spending average over time",
+            name: "Twelve-week, fifty-two-week, and all-time spending averages over time",
+        }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("heading", {name: "Savings"})).toBeInTheDocument()
+    expect(
+        screen.getByRole("img", {name: "Weekly savings over time"}),
+    ).toBeInTheDocument()
+    expect(
+        screen.getByRole("img", {
+            name: "Twelve-week, fifty-two-week, and all-time savings rates over time",
         }),
     ).toBeInTheDocument()
 })
@@ -41,7 +68,12 @@ test("renders the spending graph", () => {
 test("renders an empty state", () => {
     render(
         <MemoryRouter>
-            <Insights defaultWindow={52} spending={[]} />
+            <Insights
+                defaultWindow={52}
+                savings={[]}
+                savingsRate={[]}
+                spending={[]}
+            />
         </MemoryRouter>,
     )
 

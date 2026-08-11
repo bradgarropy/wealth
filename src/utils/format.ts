@@ -19,6 +19,11 @@ const percentageChangeFormatter = new Intl.NumberFormat("en-US", {
     style: "percent",
 })
 
+const percentageFormatter = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+    style: "percent",
+})
+
 const dateInputFormatter = new Intl.DateTimeFormat("en-US", {
     day: "2-digit",
     month: "2-digit",
@@ -57,6 +62,10 @@ export const formatMoneyChange = (amountCents: number) => {
 
 export const formatPercentageChange = (percentage: number) => {
     return percentageChangeFormatter.format(percentage)
+}
+
+export const formatPercentage = (percentage: number) => {
+    return percentageFormatter.format(percentage)
 }
 
 export const formatMoneyParts = (amountCents: number) => {

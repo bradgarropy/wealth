@@ -16,6 +16,8 @@ import {
 import {
     type ChartConfig,
     ChartContainer,
+    ChartLegend,
+    ChartLegendContent,
     ChartTooltip,
     ChartTooltipContent,
 } from "~/components/ui/chart"
@@ -32,10 +34,21 @@ const chartConfig = {
     allTimeAverageCents: {
         color: "var(--foreground)",
         label: "All-time average",
+        legendStyle: "dashed",
     },
     spendingCents: {
         color: "var(--chart-1)",
         label: "Weekly spending",
+    },
+    fiftyTwoWeekAverageCents: {
+        color: "var(--foreground)",
+        label: "52-week average",
+        legendStyle: "solid",
+    },
+    twelveWeekAverageCents: {
+        color: "var(--chart-1)",
+        label: "12-week average",
+        legendStyle: "solid",
     },
 } satisfies ChartConfig
 
@@ -76,7 +89,6 @@ const SpendingChart = ({defaultWindow, points}: SpendingChartProps) => {
         defaultWindows.find(window => window === defaultWindow) ?? 52
     const [window, setWindow] = useState<HistoryWindow>(initialWindow)
     const visiblePoints = window === "all" ? points : points.slice(-window)
-
     return (
         <>
             <div className="mb-6">
@@ -130,15 +142,15 @@ const SpendingChart = ({defaultWindow, points}: SpendingChartProps) => {
                     </ChartContainer>
                 </section>
 
-                <section aria-labelledby="spending-average-heading">
+                <section aria-labelledby="spending-window-comparison-heading">
                     <h3
                         className="mb-4 text-sm font-medium"
-                        id="spending-average-heading"
+                        id="spending-window-comparison-heading"
                     >
-                        All-time average
+                        Recent spending trends
                     </h3>
                     <ChartContainer
-                        aria-label="All-time spending average over time"
+                        aria-label="Twelve-week, fifty-two-week, and all-time spending averages over time"
                         className="h-64 min-w-0 w-full sm:h-80"
                         config={chartConfig}
                         role="img"
@@ -167,11 +179,31 @@ const SpendingChart = ({defaultWindow, points}: SpendingChartProps) => {
                                 width={52}
                             />
                             {renderSpendingTooltip()}
+                            <ChartLegend
+                                content={<ChartLegendContent />}
+                                verticalAlign="top"
+                            />
+                            <Line
+                                dataKey="twelveWeekAverageCents"
+                                dot={false}
+                                stroke="var(--color-twelveWeekAverageCents)"
+                                strokeWidth={2.5}
+                                type="linear"
+                            />
+                            <Line
+                                dataKey="fiftyTwoWeekAverageCents"
+                                dot={false}
+                                stroke="var(--color-fiftyTwoWeekAverageCents)"
+                                strokeWidth={2.5}
+                                type="linear"
+                            />
                             <Line
                                 dataKey="allTimeAverageCents"
                                 dot={false}
                                 stroke="var(--color-allTimeAverageCents)"
-                                strokeWidth={2.5}
+                                strokeDasharray="5 5"
+                                strokeOpacity={0.55}
+                                strokeWidth={2}
                                 type="linear"
                             />
                         </LineChart>

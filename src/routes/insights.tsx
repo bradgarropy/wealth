@@ -1,9 +1,15 @@
 import {data} from "react-router"
 
 import Insights from "~/components/Insights"
+import type {SavingsPoint} from "~/components/SavingsChart"
 import {getDatabase} from "~/db/client"
 import {getAllBalances, getSettings} from "~/db/queries"
-import {calculateSpendingTrend} from "~/utils/finance"
+import {
+    calculateCaptureSummary,
+    calculateSavingsRateTrend,
+    calculateSpendingTrend,
+    isSavingsTrackingDate,
+} from "~/utils/finance"
 
 import type {Route} from "./+types/insights"
 
@@ -18,7 +24,8 @@ export const loader = async ({context}: Route.LoaderArgs) => {
         throw data("Settings are not configured.", {status: 500})
     }
 
-    const captures = [...Map.groupBy(balances, balance => balance.date)]
+    const balancesByDate = [...Map.groupBy(balances, balance => balance.date)]
+    const captures = balancesByDate
         .map(([date, datedBalances]) => {
             const creditBalances = datedBalances.filter(
                 balance => balance.accountCategory === "credit",
@@ -37,9 +44,41 @@ export const loader = async ({context}: Route.LoaderArgs) => {
             }
         })
         .filter(capture => capture !== null)
+    const savings: SavingsPoint[] = balancesByDate
+        .filter(([date]) => isSavingsTrackingDate(date))
+        .map(([date, datedBalances]) => {
+            const summary = calculateCaptureSummary(datedBalances, settings)
+
+            return {
+                date,
+                investmentsSavedCents: summary.investmentsSavedCents,
+                savingsSavedCents: summary.savingsSavedCents,
+                totalSavedCents: summary.totalSavedCents,
+            }
+        })
+    const spendingByDate = new Map(
+        captures.map(capture => [capture.date, capture.spendingCents]),
+    )
+    const savingsRate = calculateSavingsRateTrend(
+        savings.flatMap(point => {
+            const spendingCents = spendingByDate.get(point.date)
+
+            return spendingCents === undefined
+                ? []
+                : [
+                      {
+                          date: point.date,
+                          savedCents: point.totalSavedCents,
+                          spendingCents,
+                      },
+                  ]
+        }),
+    )
 
     return {
         defaultWindow: settings.defaultWindow,
+        savings,
+        savingsRate,
         spending: calculateSpendingTrend(captures),
     }
 }

@@ -8,6 +8,7 @@ import {
     formatMoney,
     formatMoneyChange,
     formatMoneyParts,
+    formatPercentage,
     formatPercentageChange,
 } from "~/utils/format"
 
@@ -33,6 +34,11 @@ test("formats signed financial changes", () => {
     expect(formatPercentageChange(0.1234)).toEqual("+12.34%")
     expect(formatPercentageChange(-0.1234)).toEqual("-12.34%")
     expect(formatPercentageChange(0)).toEqual("0%")
+})
+
+test("formats an unsigned percentage", () => {
+    expect(formatPercentage(0.4278)).toEqual("42.78%")
+    expect(formatPercentage(0)).toEqual("0%")
 })
 
 test("formats money into currency and amount parts", () => {

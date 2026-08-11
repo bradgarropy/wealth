@@ -23,6 +23,37 @@ export type SpendingCapture = {
 
 export type SpendingTrendPoint = SpendingCapture & {
     allTimeAverageCents: number
+    fiftyTwoWeekAverageCents: number | null
+    twelveWeekAverageCents: number | null
+}
+
+export type SavingsRateCapture = {
+    date: string
+    savedCents: number
+    spendingCents: number
+}
+
+export type SavingsRateTrendPoint = {
+    allTimeRate: number
+    date: string
+    fiftyTwoWeekRate: number | null
+    twelveWeekRate: number | null
+}
+
+export const legacySavingsDates = [
+    "2025-09-15",
+    "2025-10-15",
+    "2025-11-15",
+    "2025-12-15",
+] as const
+
+export const savingsTrackingStartDate = "2026-01-01"
+
+export const isSavingsTrackingDate = (date: string) => {
+    return (
+        date >= savingsTrackingStartDate ||
+        legacySavingsDates.some(legacyDate => legacyDate === date)
+    )
 }
 
 type CaptureBalanceInput = Pick<Balance, "amountCents"> & {
@@ -116,8 +147,72 @@ export const calculateSpendingTrend = (
                 0,
             ) / averageWindow.length,
         )
+        const calculateWindowAverage = (window: number) => {
+            if (index < window - 1) {
+                return null
+            }
 
-        return {...capture, allTimeAverageCents}
+            const capturesInWindow = chronologicalCaptures.slice(
+                index - window + 1,
+                index + 1,
+            )
+
+            return Math.round(
+                capturesInWindow.reduce(
+                    (total, entry) => total + entry.spendingCents,
+                    0,
+                ) / window,
+            )
+        }
+
+        return {
+            ...capture,
+            allTimeAverageCents,
+            fiftyTwoWeekAverageCents: calculateWindowAverage(52),
+            twelveWeekAverageCents: calculateWindowAverage(12),
+        }
+    })
+}
+
+export const calculateSavingsRateTrend = (
+    captures: SavingsRateCapture[],
+): SavingsRateTrendPoint[] => {
+    const chronologicalCaptures = [...captures].sort((left, right) =>
+        left.date.localeCompare(right.date),
+    )
+
+    const calculateRate = (entries: SavingsRateCapture[]) => {
+        const totals = entries.reduce(
+            (result, entry) => ({
+                savedCents: result.savedCents + entry.savedCents,
+                spendingCents: result.spendingCents + entry.spendingCents,
+            }),
+            {savedCents: 0, spendingCents: 0},
+        )
+        const availableCents = totals.savedCents + totals.spendingCents
+
+        return availableCents === 0 ? 0 : totals.savedCents / availableCents
+    }
+
+    return chronologicalCaptures.map((capture, index) => {
+        const calculateWindowRate = (window: number) => {
+            if (index < window - 1) {
+                return null
+            }
+
+            return calculateRate(
+                chronologicalCaptures.slice(index - window + 1, index + 1),
+            )
+        }
+
+        return {
+            allTimeRate: calculateRate(
+                chronologicalCaptures.slice(0, index + 1),
+            ),
+            date: capture.date,
+            fiftyTwoWeekRate: calculateWindowRate(52),
+            twelveWeekRate: calculateWindowRate(12),
+        }
     })
 }
 

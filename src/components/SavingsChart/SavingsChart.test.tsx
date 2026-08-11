@@ -2,47 +2,56 @@ import {render, screen} from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import {expect, test} from "vitest"
 
-import {SpendingChart} from "~/components/SpendingChart"
+import {SavingsChart} from "~/components/SavingsChart"
 
-test("renders spending and its trend averages across history ranges", async () => {
+test("renders weekly savings and rate trends across history ranges", async () => {
     const user = userEvent.setup()
     const {container} = render(
-        <SpendingChart
+        <SavingsChart
             defaultWindow={4}
             points={[
                 {
                     date: "2026-07-24",
-                    spendingCents: 100_000,
-                    allTimeAverageCents: 100_000,
-                    fiftyTwoWeekAverageCents: 90_000,
-                    twelveWeekAverageCents: 110_000,
+                    investmentsSavedCents: 300_000,
+                    savingsSavedCents: 100_000,
+                    totalSavedCents: 400_000,
                 },
                 {
                     date: "2026-07-31",
-                    spendingCents: 125_000,
-                    allTimeAverageCents: 112_500,
-                    fiftyTwoWeekAverageCents: 95_000,
-                    twelveWeekAverageCents: 115_000,
+                    investmentsSavedCents: 0,
+                    savingsSavedCents: 0,
+                    totalSavedCents: 0,
+                },
+            ]}
+            ratePoints={[
+                {
+                    allTimeRate: 0.7,
+                    date: "2026-07-24",
+                    fiftyTwoWeekRate: null,
+                    twelveWeekRate: 0.8,
+                },
+                {
+                    allTimeRate: 0.71,
+                    date: "2026-07-31",
+                    fiftyTwoWeekRate: null,
+                    twelveWeekRate: 0.75,
                 },
             ]}
         />,
     )
 
     expect(
-        screen.getByRole("img", {
-            name: "Weekly spending over time",
-        }),
+        screen.getByRole("img", {name: "Weekly savings over time"}),
     ).toBeInTheDocument()
     expect(
-        screen.getByRole("heading", {name: "Weekly spending"}),
+        screen.getByRole("heading", {name: "Weekly savings"}),
     ).toBeInTheDocument()
     expect(
-        screen.getByRole("heading", {name: "Recent spending trends"}),
+        screen.getByRole("heading", {name: "Recent savings trends"}),
     ).toBeInTheDocument()
-    expect(screen.queryByText(/Latest difference/)).not.toBeInTheDocument()
     expect(
         screen.getByRole("img", {
-            name: "Twelve-week, fifty-two-week, and all-time spending averages over time",
+            name: "Twelve-week, fifty-two-week, and all-time savings rates over time",
         }),
     ).toBeInTheDocument()
     expect(
