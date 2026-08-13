@@ -2,6 +2,7 @@ import {render, screen, within} from "@testing-library/react"
 import {createRoutesStub} from "react-router"
 import {expect, test} from "vitest"
 
+import {ACCOUNT} from "~/constants"
 import Route from "~/routes/capture-summary"
 
 const renderRoute = () => {
@@ -13,7 +14,7 @@ const renderRoute = () => {
                     {
                         accountCategory: "cash",
                         accountId: 1,
-                        accountName: "Checking",
+                        accountName: ACCOUNT.CHECKING,
                         accountSortOrder: 10,
                         accountType: "asset",
                         amountCents: 2_500_000,
@@ -23,7 +24,7 @@ const renderRoute = () => {
                     {
                         accountCategory: "savings",
                         accountId: 2,
-                        accountName: "Savings",
+                        accountName: ACCOUNT.SAVINGS,
                         accountSortOrder: 20,
                         accountType: "asset",
                         amountCents: 1_000_000,
@@ -63,7 +64,7 @@ const renderRoute = () => {
                     {
                         accountCategory: "investment",
                         accountId: 6,
-                        accountName: "Investment",
+                        accountName: ACCOUNT.INVESTMENT,
                         accountSortOrder: 60,
                         accountType: "asset",
                         amountCents: 0,
@@ -139,11 +140,11 @@ test("renders the captured balances, spending, and savings summary", async () =>
 
     expect(cashFlowTotals).toHaveTextContent("Spent$1,000.00")
     expect(cashFlowTotals).toHaveTextContent("Saved$4,000.00")
-    expect(within(balances).getByText("Checking")).toBeInTheDocument()
+    expect(within(balances).getByText(ACCOUNT.CHECKING)).toBeInTheDocument()
     expect(within(balances).getByText("Mortgage")).toBeInTheDocument()
     expect(within(balances).getByText("Apple")).toBeInTheDocument()
     expect(
-        within(balances).getByRole("link", {name: "Checking"}),
+        within(balances).getByRole("link", {name: ACCOUNT.CHECKING}),
     ).toHaveAttribute("href", "/account/1")
     expect(
         within(balances).getByRole("link", {name: "Mortgage"}),

@@ -1,5 +1,7 @@
 import {beforeEach, expect, test, vi} from "vitest"
 
+import {ACCOUNT} from "~/constants"
+
 const {database, getAllBalances, getDatabase, getSettings} = vi.hoisted(() => ({
     database: {},
     getAllBalances: vi.fn(),
@@ -108,10 +110,10 @@ test("loads savings only on the historical allowlist and from 2026 onward", asyn
     })
 
     getAllBalances.mockResolvedValue([
-        balance("2025-08-15", "Checking", "cash", 2_100_000),
-        balance("2025-09-15", "Checking", "cash", 2_100_000),
-        balance("2025-09-21", "Checking", "cash", 2_100_000),
-        balance("2026-01-01", "Checking", "cash", 2_000_000),
+        balance("2025-08-15", ACCOUNT.CHECKING, "cash", 2_100_000),
+        balance("2025-09-15", ACCOUNT.CHECKING, "cash", 2_100_000),
+        balance("2025-09-21", ACCOUNT.CHECKING, "cash", 2_100_000),
+        balance("2026-01-01", ACCOUNT.CHECKING, "cash", 2_000_000),
     ])
 
     const result = await loader({

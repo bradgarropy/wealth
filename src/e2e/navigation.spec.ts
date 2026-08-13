@@ -53,12 +53,10 @@ test("navigates through primary and financial detail pages", async ({page}) => {
 
     await page
         .getByRole("region", {name: "Balances"})
-        .getByRole("link", {name: "Rewards Card"})
+        .getByRole("link", {name: "NFCU Credit"})
         .click()
-    await expect(page).toHaveTitle("wealth | Rewards Card")
-    await expect(
-        page.getByRole("heading", {name: "Rewards Card"}),
-    ).toBeVisible()
+    await expect(page).toHaveTitle("wealth | NFCU Credit")
+    await expect(page.getByRole("heading", {name: "NFCU Credit"})).toBeVisible()
     await expect(
         page.getByRole("heading", {name: "Balance history"}),
     ).toBeVisible()

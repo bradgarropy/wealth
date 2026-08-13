@@ -1,5 +1,6 @@
 import {expect, test} from "vitest"
 
+import {ACCOUNT} from "~/constants"
 import {
     calculateCaptureSummary,
     calculateChange,
@@ -201,7 +202,7 @@ test("calculates a capture summary and savings plan", () => {
         [
             {
                 accountCategory: "cash",
-                accountName: "Checking",
+                accountName: ACCOUNT.CHECKING,
                 accountType: "asset",
                 amountCents: 2_500_000,
             },
@@ -255,7 +256,7 @@ test("does not recommend saving below the checking baseline", () => {
         [
             {
                 accountCategory: "cash",
-                accountName: "Checking",
+                accountName: ACCOUNT.CHECKING,
                 accountType: "asset",
                 amountCents: 2_050_000,
             },
