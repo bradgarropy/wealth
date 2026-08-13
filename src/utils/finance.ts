@@ -1,3 +1,4 @@
+import {ACCOUNT} from "~/constants"
 import type {Account, Balance, Settings} from "~/db/queries"
 
 type BalanceSnapshotInput = Pick<Balance, "amountCents" | "date"> & {
@@ -225,7 +226,7 @@ export const calculateCaptureSummary = (
         balances.map(balance => ({...balance, date: ""})),
     )
     const checkingCents =
-        balances.find(balance => balance.accountName === "Checking")
+        balances.find(balance => balance.accountName === ACCOUNT.CHECKING)
             ?.amountCents ?? 0
     const spendingCents = balances
         .filter(balance => balance.accountCategory === "credit")

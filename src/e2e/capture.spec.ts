@@ -1,6 +1,8 @@
 import {expect, test} from "@playwright/test"
 import {addDays, format} from "date-fns"
 
+import {ACCOUNT} from "~/constants"
+
 const browserDateOffsets: Record<string, number> = {
     chromium: 1,
     firefox: 2,
@@ -40,27 +42,27 @@ test("completes and persists the weekly capture flow", async ({
     })
     const nextAccount = page.getByRole("button", {name: "Next account"})
 
-    await expect(page.getByText("Rewards Card", {exact: true})).toBeVisible()
+    await expect(page.getByText("NFCU Credit", {exact: true})).toBeVisible()
     await expect(nextAccount).toBeDisabled()
     await currentBalance.fill("100")
     await expect(nextAccount).toBeEnabled()
     await nextAccount.click()
 
-    await expect(page.getByText("Checking", {exact: true})).toBeVisible()
+    await expect(page.getByText(ACCOUNT.CHECKING, {exact: true})).toBeVisible()
     await currentBalance.fill("22100")
     await nextAccount.click()
 
-    await expect(page.getByText("Emergency", {exact: true})).toBeVisible()
+    await expect(page.getByText(ACCOUNT.EMERGENCY, {exact: true})).toBeVisible()
     await page.getByRole("button", {name: "Back"}).click()
-    await expect(page.getByText("Checking", {exact: true})).toBeVisible()
+    await expect(page.getByText(ACCOUNT.CHECKING, {exact: true})).toBeVisible()
     await expect(currentBalance).toHaveValue("22,100.00")
     await nextAccount.click()
 
-    await expect(page.getByText("Emergency", {exact: true})).toBeVisible()
+    await expect(page.getByText(ACCOUNT.EMERGENCY, {exact: true})).toBeVisible()
     await expect(currentBalance).toHaveValue("60,000.00")
     await nextAccount.click()
 
-    await expect(page.getByText("Savings", {exact: true})).toBeVisible()
+    await expect(page.getByText(ACCOUNT.SAVINGS, {exact: true})).toBeVisible()
     await currentBalance.fill("12000")
     await nextAccount.click()
 
@@ -72,7 +74,9 @@ test("completes and persists the weekly capture flow", async ({
     await currentBalance.fill("6500")
     await nextAccount.click()
 
-    await expect(page.getByText("Brokerage", {exact: true})).toBeVisible()
+    await expect(
+        page.getByText(ACCOUNT.INVESTMENT, {exact: true}),
+    ).toBeVisible()
     await currentBalance.fill("280000")
     await nextAccount.click()
 
@@ -103,7 +107,7 @@ test("completes and persists the weekly capture flow", async ({
         page.getByRole("heading", {name: "Pay off your credit cards"}),
     ).toBeVisible()
     const continueButton = page.getByRole("button", {name: "Continue"})
-    const cardPayment = page.getByRole("checkbox", {name: /Rewards Card/})
+    const cardPayment = page.getByRole("checkbox", {name: /NFCU Credit/})
 
     await expect(continueButton).toBeDisabled()
     await cardPayment.check()
@@ -178,9 +182,9 @@ test("completes and persists the weekly capture flow", async ({
     await expect(totals).toContainText("$519,150.00")
 
     const balances = page.getByRole("region", {name: "Balances"})
-    await expect(balances).toContainText("Rewards Card")
+    await expect(balances).toContainText("NFCU Credit")
     await expect(balances).toContainText("$100.00")
-    await expect(balances).toContainText("Checking")
+    await expect(balances).toContainText(ACCOUNT.CHECKING)
     await expect(balances).toContainText("$22,100.00")
 
     const cashFlow = page.getByRole("region", {name: "Cash flow totals"})

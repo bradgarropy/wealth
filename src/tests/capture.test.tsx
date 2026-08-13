@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event"
 import {createRoutesStub} from "react-router"
 import {expect, test} from "vitest"
 
+import {ACCOUNT} from "~/constants"
 import type {Account} from "~/db/queries"
 import Route from "~/routes/capture"
 import {formatDateInput} from "~/utils/format"
@@ -16,7 +17,7 @@ const accounts: CaptureAccount[] = [
         category: "cash" as const,
         defaultAmountCents: null,
         id: 1,
-        name: "Checking",
+        name: ACCOUNT.CHECKING,
         type: "asset" as const,
     },
     {
@@ -99,7 +100,7 @@ test("walks through accounts and preserves their balances", async () => {
             name: "What is the current balance?",
         }),
     ).toBeInTheDocument()
-    expect(screen.getByText("Checking")).toBeInTheDocument()
+    expect(screen.getByText(ACCOUNT.CHECKING)).toBeInTheDocument()
     expect(screen.getByText("cash")).toBeInTheDocument()
     expect(screen.getByText("asset")).toBeInTheDocument()
     expect(screen.getByText("2 of 7")).toBeInTheDocument()
@@ -149,7 +150,7 @@ test("walks through accounts and preserves their balances", async () => {
 
     await user.click(screen.getByRole("button", {name: "Back"}))
 
-    expect(screen.getByText("Checking")).toBeInTheDocument()
+    expect(screen.getByText(ACCOUNT.CHECKING)).toBeInTheDocument()
     expect(screen.getByLabelText("Current balance")).toHaveValue("1,300.00")
 })
 
@@ -238,7 +239,7 @@ test("does not create a payoff task for a zero credit balance", async () => {
     expect(screen.getByRole("button", {name: "Continue"})).toBeEnabled()
 })
 
-test("carries the Emergency and mortgage balances forward", async () => {
+test("carries the emergency and mortgage balances forward", async () => {
     const user = userEvent.setup()
 
     renderRoute([
@@ -246,7 +247,7 @@ test("carries the Emergency and mortgage balances forward", async () => {
             category: "savings",
             defaultAmountCents: 6_000_000,
             id: 3,
-            name: "Emergency",
+            name: ACCOUNT.EMERGENCY,
             type: "asset",
         },
         {
@@ -260,7 +261,7 @@ test("carries the Emergency and mortgage balances forward", async () => {
 
     await user.click(await screen.findByRole("button", {name: "Begin capture"}))
 
-    expect(screen.getByText("Emergency")).toBeInTheDocument()
+    expect(screen.getByText(ACCOUNT.EMERGENCY)).toBeInTheDocument()
     expect(screen.getByLabelText("Current balance")).toHaveValue("60,000.00")
 
     await user.click(screen.getByRole("button", {name: "Next account"}))

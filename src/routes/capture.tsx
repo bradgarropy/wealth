@@ -14,6 +14,7 @@ import {Badge} from "~/components/ui/badge"
 import {Button, buttonVariants} from "~/components/ui/button"
 import {Checkbox} from "~/components/ui/checkbox"
 import {Progress, ProgressLabel, ProgressValue} from "~/components/ui/progress"
+import {ACCOUNT} from "~/constants"
 import {getDatabase} from "~/db/client"
 import {
     getAccounts,
@@ -135,7 +136,8 @@ export const loader = async ({context}: Route.LoaderArgs) => {
             .map(account => ({
                 category: account.category,
                 defaultAmountCents:
-                    account.name === "Emergency" || account.name === "Mortgage"
+                    account.name === ACCOUNT.EMERGENCY ||
+                    account.category === "mortgage"
                         ? (latestBalancesByAccountId.get(account.id) ?? null)
                         : null,
                 id: account.id,

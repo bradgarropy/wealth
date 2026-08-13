@@ -2,6 +2,7 @@ import {format, startOfWeek, subWeeks} from "date-fns"
 import {sql} from "drizzle-orm"
 import {getPlatformProxy} from "wrangler"
 
+import {ACCOUNT} from "~/constants"
 import {getDatabase} from "~/db/client"
 import type {AccountInput} from "~/db/queries"
 import {
@@ -16,28 +17,35 @@ const demoAccounts = [
     {
         archived: false,
         category: "credit",
-        name: "Rewards Card",
+        name: "NFCU Credit",
         sortOrder: 10,
+        type: "liability",
+    },
+    {
+        archived: true,
+        category: "credit",
+        name: "Apple",
+        sortOrder: 15,
         type: "liability",
     },
     {
         archived: false,
         category: "cash",
-        name: "Checking",
+        name: ACCOUNT.CHECKING,
         sortOrder: 20,
         type: "asset",
     },
     {
         archived: false,
         category: "savings",
-        name: "Emergency",
+        name: ACCOUNT.EMERGENCY,
         sortOrder: 30,
         type: "asset",
     },
     {
         archived: false,
         category: "savings",
-        name: "Savings",
+        name: ACCOUNT.SAVINGS,
         sortOrder: 40,
         type: "asset",
     },
@@ -58,7 +66,7 @@ const demoAccounts = [
     {
         archived: false,
         category: "investment",
-        name: "Brokerage",
+        name: ACCOUNT.INVESTMENT,
         sortOrder: 70,
         type: "asset",
     },
@@ -72,20 +80,23 @@ const demoAccounts = [
 ] satisfies AccountInput[]
 
 const balanceGenerators: Record<string, (week: number) => number> = {
-    "Rewards Card": week => 85_000 + ((week * 43_700) % 140_000),
-    "Checking": week =>
+    "NFCU Credit": week => 85_000 + ((week * 43_700) % 140_000),
+    "Apple": week => (week < 12 ? 25_000 + ((week * 17_300) % 65_000) : 0),
+    [ACCOUNT.CHECKING]: week =>
         2_200_000 + [310_000, 75_000, 420_000, 190_000][week % 4],
-    "Emergency": () => 6_000_000,
-    "Savings": week => 1_200_000 + week * 30_000,
-    "401k": week => 32_000_000 + week * 300_000 + (week % 5) * 45_000,
-    "HSA": week => 650_000 + week * 15_000,
-    "Brokerage": week => 28_000_000 + week * 400_000 + (week % 6) * 80_000,
-    "Mortgage": week => 24_000_000 - week * 115_000,
+    [ACCOUNT.EMERGENCY]: () => 6_000_000,
+    [ACCOUNT.SAVINGS]: week => 1_200_000 + week * 15_000,
+    "401k": week => 12_000_000 + week * 60_000 + (week % 5) * 45_000,
+    "HSA": week => 650_000 + week * 7_500,
+    [ACCOUNT.INVESTMENT]: week =>
+        8_800_000 + week * 100_000 + (week % 6) * 80_000,
+    "Mortgage": week => 15_800_000 - week * 57_500,
 }
 
-const captureDates = Array.from({length: 52}, (_, week) => {
+const captureCount = 104
+const captureDates = Array.from({length: captureCount}, (_, week) => {
     const latestSunday = startOfWeek(new Date(), {weekStartsOn: 0})
-    return format(subWeeks(latestSunday, 51 - week), "yyyy-MM-dd")
+    return format(subWeeks(latestSunday, captureCount - 1 - week), "yyyy-MM-dd")
 })
 
 const platform = await getPlatformProxy<Env>({remoteBindings: false})

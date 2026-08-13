@@ -1,5 +1,7 @@
 import {beforeEach, expect, test, vi} from "vitest"
 
+import {ACCOUNT} from "~/constants"
+
 const {database, getBalancesByDate, getCaptureDates, getDatabase, getSettings} =
     vi.hoisted(() => ({
         database: {},
@@ -22,7 +24,7 @@ const balances = [
     {
         accountCategory: "cash" as const,
         accountId: 1,
-        accountName: "Checking",
+        accountName: ACCOUNT.CHECKING,
         accountSortOrder: 10,
         accountType: "asset" as const,
         amountCents: 2_500_000,

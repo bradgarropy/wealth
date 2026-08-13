@@ -3,6 +3,7 @@ import {data, Link} from "react-router"
 import {z} from "zod"
 
 import {buttonVariants} from "~/components/ui/button"
+import {ACCOUNT} from "~/constants"
 import {getDatabase} from "~/db/client"
 import {getBalancesByDate, getCaptureDates, getSettings} from "~/db/queries"
 import {calculateCaptureSummary} from "~/utils/finance"
@@ -58,10 +59,10 @@ const Route = ({loaderData}: Route.ComponentProps) => {
             balance.accountCategory === "credit" && balance.amountCents > 0,
     )
     const investmentAccount = balances.find(
-        balance => balance.accountName === "Investment",
+        balance => balance.accountName === ACCOUNT.INVESTMENT,
     )
     const savingsAccount = balances.find(
-        balance => balance.accountName === "Savings",
+        balance => balance.accountName === ACCOUNT.SAVINGS,
     )
     const balanceGroups = [
         {
