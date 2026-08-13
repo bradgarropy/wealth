@@ -1,3 +1,9 @@
+import {execFile} from "node:child_process"
+import {mkdtemp, rm, writeFile} from "node:fs/promises"
+import {tmpdir} from "node:os"
+import {join} from "node:path"
+import {promisify} from "node:util"
+
 import {format, startOfWeek, subWeeks} from "date-fns"
 import {sql} from "drizzle-orm"
 import {getPlatformProxy} from "wrangler"
@@ -217,59 +223,184 @@ if (unexpectedArguments.length > 0) {
     throw new Error(`Unknown seed arguments: ${unexpectedArguments.join(", ")}`)
 }
 
-const platform = await getPlatformProxy<Env>({
-    environment: seedDemo ? "demo" : undefined,
-    remoteBindings: seedDemo,
-})
-
-try {
-    const db = getDatabase(platform.env)
-
-    await db.delete(balances)
-    await db.delete(accounts)
-    await db.delete(settings)
-    await db.run(
-        sql`delete from sqlite_sequence where name in ('accounts', 'balances')`,
+const escapeSql = (value: string) => `'${value.replaceAll("'", "''")}'`
+const chunk = <Value>(values: Value[], size: number) => {
+    return Array.from({length: Math.ceil(values.length / size)}, (_, index) =>
+        values.slice(index * size, (index + 1) * size),
     )
+}
+const balanceRows = captureDates.flatMap((date, week) =>
+    demoAccounts.map((account, index) => ({
+        accountId: index + 1,
+        amountCents: balanceGenerators[account.name](week),
+        date,
+    })),
+)
+const createDemoSeedSql = () => {
+    const accountValues = demoAccounts
+        .map((account, index) =>
+            [
+                index + 1,
+                escapeSql(account.name),
+                escapeSql(account.type),
+                escapeSql(account.category),
+                account.sortOrder,
+                Number(account.archived),
+            ].join(", "),
+        )
+        .map(value => `(${value})`)
+        .join(",\n")
+    const balanceInserts = chunk(balanceRows, 100).map(rows => {
+        const values = rows
+            .map(
+                row =>
+                    `(${row.accountId}, ${escapeSql(row.date)}, ${row.amountCents})`,
+            )
+            .join(",\n")
 
-    console.log(`Reset ${seedDemo ? "remote demo" : "local"} database.`)
-
-    await setSettings(db, {
-        checkingBaselineCents: 1_000_000,
-        defaultWindow: 52,
-        emergencyBaselineCents: 5_000_000,
-        excessInvestPct: 75,
-        excessSavePct: 25,
+        return `INSERT INTO balances (account_id, date, amount_cents) VALUES\n${values};`
     })
 
-    await upsertAccounts(db, demoAccounts)
+    return [
+        "DELETE FROM balances;",
+        "DELETE FROM accounts;",
+        "DELETE FROM settings;",
+        "DELETE FROM sqlite_sequence WHERE name IN ('accounts', 'balances');",
+        "INSERT INTO settings (id, checking_baseline_cents, emergency_baseline_cents, excess_invest_pct, excess_save_pct, default_window) VALUES (1, 1000000, 5000000, 75, 25, 52);",
+        `INSERT INTO accounts (id, name, type, category, sort_order, archived) VALUES\n${accountValues};`,
+        ...balanceInserts,
+    ].join("\n")
+}
 
-    const seededAccounts = await getAccounts(db)
-    const accountIds = new Map(
-        seededAccounts.map(account => [account.name, account.id]),
-    )
+type SeedCounts = {
+    accounts: number
+    balances: number
+    settings: number
+}
 
-    for (const [week, date] of captureDates.entries()) {
-        const entries = demoAccounts.map(account => {
-            const accountId = accountIds.get(account.name)
-            const generateBalance = balanceGenerators[account.name]
+const execFileAsync = promisify(execFile)
+const seedRemoteDemo = async () => {
+    const directory = await mkdtemp(join(tmpdir(), "wealth-demo-seed-"))
+    const seedPath = join(directory, "seed.sql")
 
-            if (!accountId || !generateBalance) {
-                throw new Error(`Unable to seed ${account.name}.`)
-            }
+    try {
+        await writeFile(seedPath, createDemoSeedSql())
 
-            return {
-                accountId,
-                amountCents: generateBalance(week),
-            }
+        const seedResult = await execFileAsync(
+            "npx",
+            [
+                "wrangler",
+                "d1",
+                "execute",
+                "DB",
+                "--remote",
+                "--env",
+                "demo",
+                "--file",
+                seedPath,
+                "--yes",
+            ],
+            {maxBuffer: 10 * 1024 * 1024},
+        )
+
+        process.stdout.write(seedResult.stdout)
+        process.stderr.write(seedResult.stderr)
+
+        const countResult = await execFileAsync(
+            "npx",
+            [
+                "wrangler",
+                "d1",
+                "execute",
+                "DB",
+                "--remote",
+                "--env",
+                "demo",
+                "--json",
+                "--command",
+                "SELECT (SELECT COUNT(*) FROM accounts) AS accounts, (SELECT COUNT(*) FROM balances) AS balances, (SELECT COUNT(*) FROM settings) AS settings;",
+            ],
+            {maxBuffer: 10 * 1024 * 1024},
+        )
+        const response = JSON.parse(countResult.stdout) as Array<{
+            results: SeedCounts[]
+            success: boolean
+        }>
+        const counts = response[0]?.results[0]
+
+        if (
+            !response[0]?.success ||
+            counts?.accounts !== demoAccounts.length ||
+            counts.balances !== balanceRows.length ||
+            counts.settings !== 1
+        ) {
+            throw new Error(
+                `Remote demo seed verification failed: ${JSON.stringify(counts)}`,
+            )
+        }
+
+        console.log(
+            `Seeded ${counts.accounts} demo accounts and ${captureDates.length} weekly captures to the remote demo.`,
+        )
+    } finally {
+        await rm(directory, {force: true, recursive: true})
+    }
+}
+
+const seedLocal = async () => {
+    const platform = await getPlatformProxy<Env>({remoteBindings: false})
+
+    try {
+        const db = getDatabase(platform.env)
+
+        await db.delete(balances)
+        await db.delete(accounts)
+        await db.delete(settings)
+        await db.run(
+            sql`delete from sqlite_sequence where name in ('accounts', 'balances')`,
+        )
+
+        console.log("Reset local database.")
+
+        await setSettings(db, {
+            checkingBaselineCents: 1_000_000,
+            defaultWindow: 52,
+            emergencyBaselineCents: 5_000_000,
+            excessInvestPct: 75,
+            excessSavePct: 25,
         })
 
-        await upsertBalances(db, date, entries)
-    }
+        await upsertAccounts(db, demoAccounts)
 
-    console.log(
-        `Seeded ${demoAccounts.length} demo accounts and ${captureDates.length} weekly captures ${seedDemo ? "to the remote demo" : "locally"}.`,
-    )
-} finally {
-    await platform.dispose()
+        const seededAccounts = await getAccounts(db)
+        const accountIds = new Map(
+            seededAccounts.map(account => [account.name, account.id]),
+        )
+
+        for (const [week, date] of captureDates.entries()) {
+            const entries = demoAccounts.map(account => {
+                const accountId = accountIds.get(account.name)
+                const generateBalance = balanceGenerators[account.name]
+
+                if (!accountId || !generateBalance) {
+                    throw new Error(`Unable to seed ${account.name}.`)
+                }
+
+                return {
+                    accountId,
+                    amountCents: generateBalance(week),
+                }
+            })
+
+            await upsertBalances(db, date, entries)
+        }
+
+        console.log(
+            `Seeded ${demoAccounts.length} demo accounts and ${captureDates.length} weekly captures locally.`,
+        )
+    } finally {
+        await platform.dispose()
+    }
 }
+
+await (seedDemo ? seedRemoteDemo() : seedLocal())
