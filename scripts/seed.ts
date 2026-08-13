@@ -208,7 +208,19 @@ const captureDates = Array.from({length: captureCount}, (_, week) => {
     return format(subWeeks(latestSunday, captureCount - 1 - week), "yyyy-MM-dd")
 })
 
-const platform = await getPlatformProxy<Env>({remoteBindings: false})
+const seedDemo = process.argv.includes("--demo")
+const unexpectedArguments = process.argv
+    .slice(2)
+    .filter((value: string) => value !== "--demo")
+
+if (unexpectedArguments.length > 0) {
+    throw new Error(`Unknown seed arguments: ${unexpectedArguments.join(", ")}`)
+}
+
+const platform = await getPlatformProxy<Env>({
+    environment: seedDemo ? "demo" : undefined,
+    remoteBindings: seedDemo,
+})
 
 try {
     const db = getDatabase(platform.env)
@@ -220,7 +232,7 @@ try {
         sql`delete from sqlite_sequence where name in ('accounts', 'balances')`,
     )
 
-    console.log("Reset local database.")
+    console.log(`Reset ${seedDemo ? "remote demo" : "local"} database.`)
 
     await setSettings(db, {
         checkingBaselineCents: 1_000_000,
@@ -256,7 +268,7 @@ try {
     }
 
     console.log(
-        `Seeded ${demoAccounts.length} demo accounts and ${captureDates.length} weekly captures locally.`,
+        `Seeded ${demoAccounts.length} demo accounts and ${captureDates.length} weekly captures ${seedDemo ? "to the remote demo" : "locally"}.`,
     )
 } finally {
     await platform.dispose()
