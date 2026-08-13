@@ -31,4 +31,26 @@
             "remote": true,
         },
     ],
+    "env": {
+        "demo": {
+            "routes": [
+                {
+                    "pattern": "demo.wealth.bradgarropy.com",
+                    "custom_domain": true,
+                },
+            ],
+            "d1_databases": [
+                {
+                    "binding": "DB",
+                    "database_name": "wealth-demo",
+                    "database_id": "128b20ab-2cbf-48dc-8655-0a10a874d26c",
+                    "migrations_dir": "src/db/migrations",
+                    "remote": true,
+                },
+            ],
+            "version_metadata": {
+                "binding": "CF_VERSION_METADATA",
+            },
+        },
+    },
 }
