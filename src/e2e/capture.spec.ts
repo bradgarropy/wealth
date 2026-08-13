@@ -59,7 +59,7 @@ test("completes and persists the weekly capture flow", async ({
     await nextAccount.click()
 
     await expect(page.getByText(ACCOUNT.EMERGENCY, {exact: true})).toBeVisible()
-    await expect(currentBalance).toHaveValue("60,000.00")
+    await expect(currentBalance).toHaveValue("50,000.00")
     await nextAccount.click()
 
     await expect(page.getByText(ACCOUNT.SAVINGS, {exact: true})).toBeVisible()
@@ -81,7 +81,7 @@ test("completes and persists the weekly capture flow", async ({
     await nextAccount.click()
 
     await expect(page.getByText("Mortgage", {exact: true})).toBeVisible()
-    await expect(currentBalance).toHaveValue("181,350.00")
+    await expect(currentBalance).toHaveValue("98,775.00")
     await page.getByRole("button", {name: "Confirm balances"}).click()
 
     await expect(
@@ -92,12 +92,12 @@ test("completes and persists the weekly capture flow", async ({
     for (const amount of [
         "$100.00",
         "$22,100.00",
-        "$60,000.00",
+        "$50,000.00",
         "$12,000.00",
         "$320,000.00",
         "$6,500.00",
         "$280,000.00",
-        "$181,350.00",
+        "$98,775.00",
     ]) {
         await expect(page.getByText(amount, {exact: true})).toBeVisible()
     }
@@ -125,29 +125,29 @@ test("completes and persists the weekly capture flow", async ({
 
     await expect(
         page.getByRole("button", {
-            name: "Copy $1,500.00 transfer to Investments",
+            name: "Copy $9,000.00 transfer to Investments",
         }),
     ).toBeVisible()
     await expect(
         page.getByRole("button", {
-            name: "Copy $500.00 transfer to Savings",
+            name: "Copy $3,000.00 transfer to Savings",
         }),
     ).toBeVisible()
     await expect(finishButton).toBeDisabled()
 
     await page
         .getByRole("button", {
-            name: "Copy $1,500.00 transfer to Investments",
+            name: "Copy $9,000.00 transfer to Investments",
         })
         .click()
     await expect(
-        page.getByText("$1,500.00 copied", {exact: true}),
+        page.getByText("$9,000.00 copied", {exact: true}),
     ).toBeAttached()
     await expect
         .poll(() =>
             page.evaluate(() => window.sessionStorage.getItem("copied-text")),
         )
-        .toBe("1500.00")
+        .toBe("9000.00")
     await expect(investmentTransfer).not.toBeChecked()
 
     await investmentTransfer.check()
@@ -177,9 +177,9 @@ test("completes and persists the weekly capture flow", async ({
     const totals = page.getByRole("region", {
         name: "Financial snapshot totals",
     })
-    await expect(totals).toContainText("$700,600.00")
-    await expect(totals).toContainText("$181,450.00")
-    await expect(totals).toContainText("$519,150.00")
+    await expect(totals).toContainText("$690,600.00")
+    await expect(totals).toContainText("$98,875.00")
+    await expect(totals).toContainText("$591,725.00")
 
     const balances = page.getByRole("region", {name: "Balances"})
     await expect(balances).toContainText("NFCU Credit")
@@ -189,9 +189,9 @@ test("completes and persists the weekly capture flow", async ({
 
     const cashFlow = page.getByRole("region", {name: "Cash flow totals"})
     await expect(cashFlow).toContainText("$100.00")
-    await expect(cashFlow).toContainText("$2,000.00")
+    await expect(cashFlow).toContainText("$12,000.00")
 
     const savings = page.getByRole("region", {name: "Savings breakdown"})
-    await expect(savings).toContainText("$1,500.00")
-    await expect(savings).toContainText("$500.00")
+    await expect(savings).toContainText("$9,000.00")
+    await expect(savings).toContainText("$3,000.00")
 })
