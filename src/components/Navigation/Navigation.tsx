@@ -1,7 +1,7 @@
 import {
-    ChartNoAxesCombinedIcon,
-    ChartSplineIcon,
+    ChartColumnIncreasingIcon,
     CirclePlusIcon,
+    LightbulbIcon,
     PlusIcon,
     SettingsIcon,
     WalletCardsIcon,
@@ -46,13 +46,13 @@ const Navigation = () => {
                 aria-label="Mobile navigation"
                 className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm sm:hidden"
             >
-                <div className="mx-auto flex max-w-md items-center">
+                <div className="mx-auto flex max-w-md items-center py-2">
                     <NavLink
                         to="/"
                         prefetch="intent"
                         className={mobileLinkClassName}
                     >
-                        <ChartNoAxesCombinedIcon className="size-5" />
+                        <ChartColumnIncreasingIcon className="size-5" />
                         <span>Overview</span>
                     </NavLink>
 
@@ -61,7 +61,7 @@ const Navigation = () => {
                         prefetch="intent"
                         className={mobileLinkClassName}
                     >
-                        <ChartSplineIcon className="size-5" />
+                        <LightbulbIcon className="size-5" />
                         <span>Insights</span>
                     </NavLink>
 
