@@ -12,6 +12,7 @@ type NumberInputProps = {
     addon?: ReactNode
     addonAlign?: "inline-start" | "inline-end"
     ariaLabel?: string
+    autoFocus?: boolean
     className?: string
     defaultValue?: number
     format?: Intl.NumberFormatOptions
@@ -28,6 +29,7 @@ const NumberInput = ({
     addon,
     addonAlign = "inline-start",
     ariaLabel,
+    autoFocus,
     className,
     defaultValue,
     format,
@@ -56,6 +58,8 @@ const NumberInput = ({
             >
                 <NumberField.Input
                     aria-label={ariaLabel}
+                    // eslint-disable-next-line jsx-a11y/no-autofocus -- Enabled explicitly for wizard input focus.
+                    autoFocus={autoFocus}
                     id={id}
                     data-slot="input-group-control"
                     className="h-full min-w-0 flex-1 bg-transparent px-4 text-right text-lg tabular-nums outline-none"

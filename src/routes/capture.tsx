@@ -338,8 +338,18 @@ const Route = ({loaderData}: Route.ComponentProps) => {
                 ) : null}
 
                 {currentAccount ? (
-                    <div className="space-y-8">
+                    <form
+                        className="space-y-8"
+                        onSubmit={event => {
+                            event.preventDefault()
+
+                            if (!isCurrentBalanceMissing) {
+                                handleNext()
+                            }
+                        }}
+                    >
                         <BalanceInput
+                            key={currentAccount.id}
                             account={currentAccount}
                             value={balances[currentAccount.id]}
                             onValueChange={value =>
@@ -364,8 +374,7 @@ const Route = ({loaderData}: Route.ComponentProps) => {
                             <Button
                                 disabled={isCurrentBalanceMissing}
                                 size="lg"
-                                type="button"
-                                onClick={handleNext}
+                                type="submit"
                                 className="h-12"
                             >
                                 {isLastAccount
@@ -373,7 +382,7 @@ const Route = ({loaderData}: Route.ComponentProps) => {
                                     : "Next account"}
                             </Button>
                         </div>
-                    </div>
+                    </form>
                 ) : null}
 
                 {isConfirmStep ? (

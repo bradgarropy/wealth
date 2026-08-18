@@ -40,6 +40,8 @@ const BalanceInput = ({account, onValueChange, value}: BalanceInputProps) => {
 
             <FieldPrimitive.Root name={inputId} render={<Field />}>
                 <MoneyInput
+                    // eslint-disable-next-line jsx-a11y/no-autofocus -- Balance entry is the primary task on this wizard step.
+                    autoFocus
                     id={inputId}
                     value={value}
                     onValueChange={onValueChange}

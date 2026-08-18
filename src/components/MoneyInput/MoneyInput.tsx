@@ -2,6 +2,7 @@ import NumberInput from "~/components/NumberInput"
 
 type MoneyInputProps = {
     ariaLabel?: string
+    autoFocus?: boolean
     className?: string
     defaultValue?: number
     id: string
@@ -12,6 +13,7 @@ type MoneyInputProps = {
 
 const MoneyInput = ({
     ariaLabel,
+    autoFocus,
     className,
     defaultValue,
     id,
@@ -23,6 +25,8 @@ const MoneyInput = ({
         <NumberInput
             addon="$"
             ariaLabel={ariaLabel}
+            // eslint-disable-next-line jsx-a11y/no-autofocus -- Forwarded explicitly for wizard input focus.
+            autoFocus={autoFocus}
             className={className}
             defaultValue={defaultValue}
             format={{
