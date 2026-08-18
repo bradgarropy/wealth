@@ -154,6 +154,27 @@ test("walks through accounts and preserves their balances", async () => {
     expect(screen.getByLabelText("Current balance")).toHaveValue("1,300.00")
 })
 
+test("advances account steps with Enter only after entering a balance", async () => {
+    const user = userEvent.setup()
+    renderRoute()
+
+    await user.click(await screen.findByRole("button", {name: "Begin capture"}))
+
+    const checkingInput = screen.getByLabelText("Current balance")
+
+    expect(checkingInput).toHaveFocus()
+    await user.keyboard("{Enter}")
+
+    expect(screen.getByText(ACCOUNT.CHECKING)).toBeInTheDocument()
+
+    await user.type(checkingInput, "1300")
+    await user.keyboard("{Enter}")
+
+    expect(screen.getByText("Apple")).toBeInTheDocument()
+    expect(screen.getByLabelText("Current balance")).toHaveValue("")
+    expect(screen.getByLabelText("Current balance")).toHaveFocus()
+})
+
 test("continues from saved balances through the weekly workflow", async () => {
     const user = userEvent.setup()
     const expectedDate = formatDateInput(new Date())
