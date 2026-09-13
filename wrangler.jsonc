@@ -31,6 +31,12 @@
             "remote": true,
         },
     ],
+    "r2_buckets": [
+        {
+            "binding": "BUCKET",
+            "bucket_name": "wealth-backups",
+        },
+    ],
     "env": {
         "demo": {
             "routes": [
