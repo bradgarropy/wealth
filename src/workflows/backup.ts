@@ -102,7 +102,7 @@ export class BackupWorkflow extends WorkflowEntrypoint<Environment> {
 
         const key = createKey(event.timestamp)
 
-        const storedBackup = await step.do("Store D1 export", async () => {
+        const storedBackup = await step.do("Store export", async () => {
             const response = await fetch(backup.signedUrl)
 
             if (!response.ok || !response.body) {
