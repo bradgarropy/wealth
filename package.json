@@ -33,6 +33,7 @@
         "build": "react-router build",
         "build:demo": "CLOUDFLARE_ENV=demo react-router build",
         "contributors": "all-contributors generate",
+        "db:backup": "wrangler d1 export DB --remote",
         "db:migrate": "wrangler d1 migrations apply DB --local",
         "db:migrate:demo": "wrangler d1 migrations apply DB --remote --env demo",
         "db:migrate:prod": "wrangler d1 migrations apply DB --remote",
@@ -108,7 +109,7 @@
         "vite": "^8.0.12",
         "vite-plugin-devtools-json": "^1.0.0",
         "vitest": "^4.1.6",
-        "wrangler": "^4.0.0"
+        "wrangler": "^4.131.1"
     },
     "engines": {
         "node": ">=20"

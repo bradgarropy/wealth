@@ -41,6 +41,14 @@
             "bucket_name": "wealth-backups",
         },
     ],
+    "workflows": [
+        {
+            "binding": "BACKUP_WORKFLOW",
+            "name": "wealth-backup",
+            "class_name": "BackupWorkflow",
+            "schedules": ["0 9 * * *"],
+        },
+    ],
     "env": {
         "demo": {
             "routes": [
