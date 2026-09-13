@@ -1,6 +1,8 @@
 import * as Sentry from "@sentry/cloudflare"
 import {createRequestHandler} from "react-router"
 
+export {BackupWorkflow} from "./workflows/backup"
+
 declare module "react-router" {
     export interface AppLoadContext {
         cloudflare: {
