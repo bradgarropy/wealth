@@ -7,7 +7,7 @@ import {AccountDialog} from "~/components/AccountDialog"
 import {AccountList} from "~/components/AccountList"
 import {DeleteAccountDialog} from "~/components/DeleteAccountDialog"
 import {Button} from "~/components/ui/button"
-import {getDatabase} from "~/db/client"
+import {getDatabaseFromContext} from "~/db/client"
 import type {Account} from "~/db/queries"
 import {
     archiveAccount,
@@ -32,7 +32,7 @@ export const action = async ({context, request}: Route.ActionArgs) => {
         )
     }
 
-    const db = getDatabase(context.cloudflare.env)
+    const db = getDatabaseFromContext(context)
 
     try {
         switch (result.data.intent) {
@@ -80,7 +80,7 @@ export const action = async ({context, request}: Route.ActionArgs) => {
 }
 
 export const loader = async ({context}: Route.LoaderArgs) => {
-    return {accounts: await getAccounts(getDatabase(context.cloudflare.env))}
+    return {accounts: await getAccounts(getDatabaseFromContext(context))}
 }
 
 const Route = ({loaderData}: Route.ComponentProps) => {

@@ -4,7 +4,7 @@ import {z} from "zod"
 
 import {buttonVariants} from "~/components/ui/button"
 import {ACCOUNT} from "~/constants"
-import {getDatabase} from "~/db/client"
+import {getDatabaseFromContext} from "~/db/client"
 import {getBalancesByDate, getCaptureDates, getSettings} from "~/db/queries"
 import {calculateCaptureSummary} from "~/utils/finance"
 import {formatDate, formatMoney} from "~/utils/format"
@@ -18,7 +18,7 @@ export const loader = async ({context, params}: Route.LoaderArgs) => {
         throw data("Invalid capture date.", {status: 400})
     }
 
-    const db = getDatabase(context.cloudflare.env)
+    const db = getDatabaseFromContext(context)
     const [balances, captureDates, settings] = await Promise.all([
         getBalancesByDate(db, dateResult.data),
         getCaptureDates(db),

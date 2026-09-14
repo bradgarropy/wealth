@@ -6,7 +6,7 @@ import {stringify} from "csv-stringify/sync"
 import {format, parseISO} from "date-fns"
 import {getPlatformProxy} from "wrangler"
 
-import {getDatabase} from "~/db/client"
+import {getDatabaseFromEnv} from "~/db/client"
 import type {Account, Settings} from "~/db/queries"
 import {getAccounts, getAllBalances, getSettings} from "~/db/queries"
 
@@ -182,7 +182,7 @@ const main = async () => {
     })
 
     try {
-        const db = getDatabase(platform.env)
+        const db = getDatabaseFromEnv(platform.env)
         const [accounts, balances, settings] = await Promise.all([
             getAccounts(db),
             getAllBalances(db),

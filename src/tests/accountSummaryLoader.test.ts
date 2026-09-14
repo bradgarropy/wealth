@@ -1,15 +1,22 @@
 import {beforeEach, expect, test, vi} from "vitest"
 
-const {database, getAccount, getBalancesByAccountId, getDatabase, getSettings} =
-    vi.hoisted(() => ({
-        database: {},
-        getAccount: vi.fn(),
-        getBalancesByAccountId: vi.fn(),
-        getDatabase: vi.fn(),
-        getSettings: vi.fn(),
-    }))
+import {createRouteArguments} from "~/tests/route"
 
-vi.mock("~/db/client", () => ({getDatabase}))
+const {
+    database,
+    getAccount,
+    getBalancesByAccountId,
+    getDatabaseFromContext,
+    getSettings,
+} = vi.hoisted(() => ({
+    database: {},
+    getAccount: vi.fn(),
+    getBalancesByAccountId: vi.fn(),
+    getDatabaseFromContext: vi.fn(),
+    getSettings: vi.fn(),
+}))
+
+vi.mock("~/db/client", () => ({getDatabaseFromContext}))
 vi.mock("~/db/queries", () => ({
     getAccount,
     getBalancesByAccountId,
@@ -38,20 +45,20 @@ const balances = [
 
 beforeEach(() => {
     vi.clearAllMocks()
-    getDatabase.mockReturnValue(database)
+    getDatabaseFromContext.mockReturnValue(database)
     getAccount.mockResolvedValue(account)
     getBalancesByAccountId.mockResolvedValue(balances)
     getSettings.mockResolvedValue({defaultWindow: 52})
 })
 
 test("loads an account and its balance history", async () => {
+    const request = new Request("http://localhost/account/1")
     const result = await loader({
-        context: {cloudflare: {env: {}}},
+        ...createRouteArguments(request),
         params: {accountId: "1"},
-        request: new Request("http://localhost/account/1"),
     } as Parameters<typeof loader>[0])
 
-    expect(getDatabase).toHaveBeenCalledOnce()
+    expect(getDatabaseFromContext).toHaveBeenCalledOnce()
     expect(getAccount).toHaveBeenCalledWith(database, 1)
     expect(getBalancesByAccountId).toHaveBeenCalledWith(database, 1)
     expect(getSettings).toHaveBeenCalledWith(database)
@@ -61,13 +68,14 @@ test("loads an account and its balance history", async () => {
 test("rejects an invalid account id before querying D1", async () => {
     await expect(
         loader({
-            context: {cloudflare: {env: {}}},
+            ...createRouteArguments(
+                new Request("http://localhost/account/checking"),
+            ),
             params: {accountId: "checking"},
-            request: new Request("http://localhost/account/checking"),
         } as Parameters<typeof loader>[0]),
     ).rejects.toMatchObject({init: {status: 400}})
 
-    expect(getDatabase).not.toHaveBeenCalled()
+    expect(getDatabaseFromContext).not.toHaveBeenCalled()
 })
 
 test("returns not found for an unknown account", async () => {
@@ -75,9 +83,8 @@ test("returns not found for an unknown account", async () => {
 
     await expect(
         loader({
-            context: {cloudflare: {env: {}}},
+            ...createRouteArguments(new Request("http://localhost/account/99")),
             params: {accountId: "99"},
-            request: new Request("http://localhost/account/99"),
         } as Parameters<typeof loader>[0]),
     ).rejects.toMatchObject({init: {status: 404}})
 })

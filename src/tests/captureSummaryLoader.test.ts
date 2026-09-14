@@ -1,17 +1,23 @@
 import {beforeEach, expect, test, vi} from "vitest"
 
 import {ACCOUNT} from "~/constants"
+import {createRouteArguments} from "~/tests/route"
 
-const {database, getBalancesByDate, getCaptureDates, getDatabase, getSettings} =
-    vi.hoisted(() => ({
-        database: {},
-        getBalancesByDate: vi.fn(),
-        getCaptureDates: vi.fn(),
-        getDatabase: vi.fn(),
-        getSettings: vi.fn(),
-    }))
+const {
+    database,
+    getBalancesByDate,
+    getCaptureDates,
+    getDatabaseFromContext,
+    getSettings,
+} = vi.hoisted(() => ({
+    database: {},
+    getBalancesByDate: vi.fn(),
+    getCaptureDates: vi.fn(),
+    getDatabaseFromContext: vi.fn(),
+    getSettings: vi.fn(),
+}))
 
-vi.mock("~/db/client", () => ({getDatabase}))
+vi.mock("~/db/client", () => ({getDatabaseFromContext}))
 vi.mock("~/db/queries", () => ({
     getBalancesByDate,
     getCaptureDates,
@@ -54,7 +60,7 @@ const settings = {
 
 beforeEach(() => {
     vi.clearAllMocks()
-    getDatabase.mockReturnValue(database)
+    getDatabaseFromContext.mockReturnValue(database)
     getBalancesByDate.mockResolvedValue(balances)
     getCaptureDates.mockResolvedValue([
         {date: "2026-07-20"},
@@ -65,13 +71,13 @@ beforeEach(() => {
 })
 
 test("loads a capture and derives its financial summary", async () => {
+    const request = new Request("http://localhost/capture/2026-07-27")
     const result = await loader({
-        context: {cloudflare: {env: {}}},
+        ...createRouteArguments(request),
         params: {date: "2026-07-27"},
-        request: new Request("http://localhost/capture/2026-07-27"),
     } as Parameters<typeof loader>[0])
 
-    expect(getDatabase).toHaveBeenCalledOnce()
+    expect(getDatabaseFromContext).toHaveBeenCalledOnce()
     expect(getBalancesByDate).toHaveBeenCalledWith(database, "2026-07-27")
     expect(getCaptureDates).toHaveBeenCalledWith(database)
     expect(getSettings).toHaveBeenCalledWith(database)
@@ -97,13 +103,14 @@ test("loads a capture and derives its financial summary", async () => {
 test("rejects an invalid capture date before querying D1", async () => {
     await expect(
         loader({
-            context: {cloudflare: {env: {}}},
+            ...createRouteArguments(
+                new Request("http://localhost/capture/July%2027"),
+            ),
             params: {date: "July 27"},
-            request: new Request("http://localhost/capture/July%2027"),
         } as Parameters<typeof loader>[0]),
     ).rejects.toMatchObject({init: {status: 400}})
 
-    expect(getDatabase).not.toHaveBeenCalled()
+    expect(getDatabaseFromContext).not.toHaveBeenCalled()
 })
 
 test("returns not found when a date has no balances", async () => {
@@ -111,9 +118,10 @@ test("returns not found when a date has no balances", async () => {
 
     await expect(
         loader({
-            context: {cloudflare: {env: {}}},
+            ...createRouteArguments(
+                new Request("http://localhost/capture/2026-07-28"),
+            ),
             params: {date: "2026-07-28"},
-            request: new Request("http://localhost/capture/2026-07-28"),
         } as Parameters<typeof loader>[0]),
     ).rejects.toMatchObject({init: {status: 404}})
 })

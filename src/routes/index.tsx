@@ -5,7 +5,7 @@ import {
     LatestAccountSnapshot,
 } from "~/components/LatestAccountSnapshot"
 import {NetWorthChart} from "~/components/NetWorthChart"
-import {getDatabase} from "~/db/client"
+import {getDatabaseFromContext} from "~/db/client"
 import {getAccounts, getAllBalances, getSettings} from "~/db/queries"
 import {
     calculateChange,
@@ -57,7 +57,7 @@ const SnapshotDelta = ({change, favorableDirection}: SnapshotDeltaProps) => {
 }
 
 export const loader = async ({context}: Route.LoaderArgs) => {
-    const database = getDatabase(context.cloudflare.env)
+    const database = getDatabaseFromContext(context)
     const [accounts, balances, settings] = await Promise.all([
         getAccounts(database),
         getAllBalances(database),

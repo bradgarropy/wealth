@@ -7,7 +7,7 @@ import {AccountTypeBadge} from "~/components/AccountTypeBadge"
 import {BalanceTable} from "~/components/BalanceTable"
 import {Badge} from "~/components/ui/badge"
 import {buttonVariants} from "~/components/ui/button"
-import {getDatabase} from "~/db/client"
+import {getDatabaseFromContext} from "~/db/client"
 import {getAccount, getBalancesByAccountId, getSettings} from "~/db/queries"
 
 import type {Route} from "./+types/account-summary"
@@ -23,7 +23,7 @@ export const loader = async ({context, params}: Route.LoaderArgs) => {
         throw data("Invalid account id.", {status: 400})
     }
 
-    const db = getDatabase(context.cloudflare.env)
+    const db = getDatabaseFromContext(context)
     const [account, balances, settings] = await Promise.all([
         getAccount(db, accountIdResult.data),
         getBalancesByAccountId(db, accountIdResult.data),

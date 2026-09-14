@@ -1,12 +1,14 @@
 import {beforeEach, expect, test, vi} from "vitest"
 
-const {database, getDatabase, setSettings} = vi.hoisted(() => ({
+import {createRouteArguments} from "~/tests/route"
+
+const {database, getDatabaseFromContext, setSettings} = vi.hoisted(() => ({
     database: {},
-    getDatabase: vi.fn(),
+    getDatabaseFromContext: vi.fn(),
     setSettings: vi.fn(),
 }))
 
-vi.mock("~/db/client", () => ({getDatabase}))
+vi.mock("~/db/client", () => ({getDatabaseFromContext}))
 vi.mock("~/db/queries", () => ({
     getSettings: vi.fn(),
     setSettings,
@@ -34,16 +36,17 @@ const validSettings = {
 }
 
 const callAction = (values: Record<string, string>) => {
+    const request = createRequest(values)
+
     return action({
-        context: {cloudflare: {env: {}}},
+        ...createRouteArguments(request),
         params: {},
-        request: createRequest(values),
     } as Parameters<typeof action>[0])
 }
 
 beforeEach(() => {
     vi.clearAllMocks()
-    getDatabase.mockReturnValue(database)
+    getDatabaseFromContext.mockReturnValue(database)
 })
 
 test("converts dollars to cents and saves valid settings", async () => {

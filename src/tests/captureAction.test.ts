@@ -1,12 +1,14 @@
 import {beforeEach, describe, expect, test, vi} from "vitest"
 
-const {database, getDatabase, upsertBalances} = vi.hoisted(() => ({
+import {createRouteArguments} from "~/tests/route"
+
+const {database, getDatabaseFromContext, upsertBalances} = vi.hoisted(() => ({
     database: {},
-    getDatabase: vi.fn(),
+    getDatabaseFromContext: vi.fn(),
     upsertBalances: vi.fn(),
 }))
 
-vi.mock("~/db/client", () => ({getDatabase}))
+vi.mock("~/db/client", () => ({getDatabaseFromContext}))
 vi.mock("~/db/queries", () => ({
     getAccounts: vi.fn(),
     getLatestBalances: vi.fn(),
@@ -29,14 +31,13 @@ const createRequest = (date: string, balances: unknown) => {
 
 const callAction = (request: Request) => {
     return action({
-        context: {cloudflare: {env: {}}},
+        ...createRouteArguments(request),
         params: {},
-        request,
     } as Parameters<typeof action>[0])
 }
 
 beforeEach(() => {
-    getDatabase.mockReturnValue(database)
+    getDatabaseFromContext.mockReturnValue(database)
     upsertBalances.mockReset()
 })
 
@@ -48,7 +49,7 @@ test("upserts a valid balance snapshot for the remaining capture flow", async ()
 
     const response = await callAction(createRequest("2026-07-27", balances))
 
-    expect(getDatabase).toHaveBeenCalledOnce()
+    expect(getDatabaseFromContext).toHaveBeenCalledOnce()
     expect(upsertBalances).toHaveBeenCalledWith(
         database,
         "2026-07-27",
