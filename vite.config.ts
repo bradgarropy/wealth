@@ -6,7 +6,7 @@ import react from "@vitejs/plugin-react"
 import devtoolsJson from "vite-plugin-devtools-json"
 import {defineConfig} from "vitest/config"
 
-import {createRelease} from "./src/utils/sentry"
+import {createRelease} from "./src/utils/sentry.ts"
 
 const config = defineConfig({
     build: {
