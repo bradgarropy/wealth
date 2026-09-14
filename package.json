@@ -11,7 +11,6 @@
         "vitest",
         "cloudflare",
         "react-router",
-        "react-router-v7",
         "tailwind",
         "hacktoberfest"
     ],
@@ -59,8 +58,8 @@
     "dependencies": {
         "@base-ui/react": "^1.6.0",
         "@fontsource-variable/geist": "^5.3.0",
-        "@sentry/cloudflare": "^10.53.1",
-        "@sentry/react-router": "^10.53.1",
+        "@sentry/cloudflare": "^10.74.0",
+        "@sentry/react-router": "^10.74.0",
         "@tanstack/react-table": "^8.21.3",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
@@ -70,10 +69,10 @@
         "drizzle-orm": "^0.45.2",
         "isbot": "^5.1.40",
         "lucide-react": "^1.27.0",
-        "react": "^19.2.6",
+        "react": "^19.3.0",
         "react-day-picker": "^10.0.1",
-        "react-dom": "^19.2.6",
-        "react-router": "^7.15.0",
+        "react-dom": "^19.3.0",
+        "react-router": "^8.3.1",
         "recharts": "^3.9.1",
         "shadcn": "^4.16.0",
         "tailwind-merge": "^3.6.0",
@@ -82,10 +81,10 @@
     },
     "devDependencies": {
         "@bradgarropy/eslint-config": "^3.2.0",
-        "@cloudflare/vite-plugin": "^1.36.4",
+        "@cloudflare/vite-plugin": "^1.54.8",
         "@playwright/test": "^1.60.0",
-        "@react-router/dev": "^7.15.0",
-        "@sentry/vite-plugin": "^5.3.0",
+        "@react-router/dev": "^8.3.1",
+        "@sentry/vite-plugin": "^5.4.0",
         "@tailwindcss/vite": "^4.3.0",
         "@testing-library/dom": "^10.4.1",
         "@testing-library/jest-dom": "^6.9.1",
@@ -94,7 +93,7 @@
         "@types/node": "^25.7.0",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
-        "@vitejs/plugin-react": "^6.0.1",
+        "@vitejs/plugin-react": "^6.1.1",
         "@vitest/coverage-v8": "^4.1.6",
         "@vitest/ui": "^4.1.6",
         "all-contributors-cli": "^6.20.0",
@@ -102,17 +101,16 @@
         "jsdom": "^29.1.1",
         "prettier": "^3.8.3",
         "prettier-plugin-tailwindcss": "^0.8.0",
-        "react-router-devtools": "^6.2.0",
         "tailwindcss": "^4.3.0",
         "tsx": "^4.23.5",
         "typescript": "^6.0.3",
-        "vite": "^8.0.12",
+        "vite": "^8.3.0",
         "vite-plugin-devtools-json": "^1.0.0",
         "vitest": "^4.1.6",
         "wrangler": "^4.131.1"
     },
     "engines": {
-        "node": ">=20"
+        "node": ">=22.22"
     },
     "sideEffects": false
 }
