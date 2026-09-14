@@ -3,7 +3,6 @@ import {reactRouter} from "@react-router/dev/vite"
 import {sentryVitePlugin as sentry} from "@sentry/vite-plugin"
 import tailwind from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
-import {reactRouterDevTools} from "react-router-devtools"
 import devtoolsJson from "vite-plugin-devtools-json"
 import {defineConfig} from "vitest/config"
 
@@ -16,7 +15,6 @@ const config = defineConfig({
     plugins: [
         tailwind(),
         devtoolsJson(),
-        reactRouterDevTools(),
         ...(process.env.VITEST
             ? [react()]
             : [
@@ -42,9 +40,6 @@ const config = defineConfig({
               })
             : null,
     ],
-    optimizeDeps: {
-        include: ["react-router-devtools/client"],
-    },
     resolve: {
         tsconfigPaths: true,
     },
