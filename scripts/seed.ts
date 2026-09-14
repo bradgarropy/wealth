@@ -9,7 +9,7 @@ import {sql} from "drizzle-orm"
 import {getPlatformProxy} from "wrangler"
 
 import {ACCOUNT} from "~/constants"
-import {getDatabase} from "~/db/client"
+import {getDatabaseFromEnv} from "~/db/client"
 import type {AccountInput} from "~/db/queries"
 import {
     getAccounts,
@@ -351,7 +351,7 @@ const seedLocal = async () => {
     const platform = await getPlatformProxy<Env>({remoteBindings: false})
 
     try {
-        const db = getDatabase(platform.env)
+        const db = getDatabaseFromEnv(platform.env)
 
         await db.delete(balances)
         await db.delete(accounts)

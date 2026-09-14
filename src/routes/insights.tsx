@@ -2,7 +2,7 @@ import {data} from "react-router"
 
 import Insights from "~/components/Insights"
 import type {SavingsPoint} from "~/components/SavingsChart"
-import {getDatabase} from "~/db/client"
+import {getDatabaseFromContext} from "~/db/client"
 import {getAllBalances, getSettings} from "~/db/queries"
 import {
     calculateCaptureSummary,
@@ -15,7 +15,7 @@ import {
 import type {Route} from "./+types/insights"
 
 export const loader = async ({context}: Route.LoaderArgs) => {
-    const database = getDatabase(context.cloudflare.env)
+    const database = getDatabaseFromContext(context)
     const [balances, settings] = await Promise.all([
         getAllBalances(database),
         getSettings(database),

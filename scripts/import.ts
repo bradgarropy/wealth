@@ -7,7 +7,7 @@ import {fileURLToPath} from "node:url"
 import {parse} from "csv-parse/sync"
 import {getPlatformProxy} from "wrangler"
 
-import {getDatabase} from "~/db/client"
+import {type Database, getDatabaseFromEnv} from "~/db/client"
 import type {
     Account,
     AccountInput,
@@ -773,7 +773,7 @@ const validateSaving = (
 }
 
 const validateImport = async (
-    db: ReturnType<typeof getDatabase>,
+    db: Database,
     rows: {
         overview: CsvRow[]
         saving: CsvRow[]
@@ -879,7 +879,7 @@ const writeImport = async (
     })
 
     try {
-        const db = getDatabase(platform.env)
+        const db = getDatabaseFromEnv(platform.env)
 
         await upsertAccounts(db, payload.accounts)
         await setSettings(db, payload.settings)

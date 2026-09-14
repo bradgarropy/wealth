@@ -1,12 +1,14 @@
 import {beforeEach, expect, test, vi} from "vitest"
 
-const {database, getDatabase, getSettings} = vi.hoisted(() => ({
+import {createRouteArguments} from "~/tests/route"
+
+const {database, getDatabaseFromContext, getSettings} = vi.hoisted(() => ({
     database: {},
-    getDatabase: vi.fn(),
+    getDatabaseFromContext: vi.fn(),
     getSettings: vi.fn(),
 }))
 
-vi.mock("~/db/client", () => ({getDatabase}))
+vi.mock("~/db/client", () => ({getDatabaseFromContext}))
 vi.mock("~/db/queries", () => ({getSettings, setSettings: vi.fn()}))
 
 import {loader} from "~/routes/settings"
@@ -21,16 +23,17 @@ const settings = {
 }
 
 const callLoader = () => {
+    const request = new Request("http://localhost/settings")
+
     return loader({
-        context: {cloudflare: {env: {}}},
+        ...createRouteArguments(request),
         params: {},
-        request: new Request("http://localhost/settings"),
     } as Parameters<typeof loader>[0])
 }
 
 beforeEach(() => {
     vi.clearAllMocks()
-    getDatabase.mockReturnValue(database)
+    getDatabaseFromContext.mockReturnValue(database)
     getSettings.mockResolvedValue(settings)
 })
 

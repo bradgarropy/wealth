@@ -15,7 +15,7 @@ import {Button, buttonVariants} from "~/components/ui/button"
 import {Checkbox} from "~/components/ui/checkbox"
 import {Progress, ProgressLabel, ProgressValue} from "~/components/ui/progress"
 import {ACCOUNT} from "~/constants"
-import {getDatabase} from "~/db/client"
+import {getDatabaseFromContext} from "~/db/client"
 import {
     getAccounts,
     getLatestBalances,
@@ -105,7 +105,7 @@ export const action = async ({context, request}: Route.ActionArgs) => {
     }
 
     await upsertBalances(
-        getDatabase(context.cloudflare.env),
+        getDatabaseFromContext(context),
         result.data.date,
         result.data.balances,
     )
@@ -114,7 +114,7 @@ export const action = async ({context, request}: Route.ActionArgs) => {
 }
 
 export const loader = async ({context}: Route.LoaderArgs) => {
-    const database = getDatabase(context.cloudflare.env)
+    const database = getDatabaseFromContext(context)
 
     const [accounts, latestBalances, settings] = await Promise.all([
         getAccounts(database),

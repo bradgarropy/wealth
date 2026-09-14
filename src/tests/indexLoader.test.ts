@@ -1,22 +1,29 @@
 import {beforeEach, expect, test, vi} from "vitest"
 
-const {database, getAccounts, getAllBalances, getDatabase, getSettings} =
-    vi.hoisted(() => ({
-        database: {},
-        getAccounts: vi.fn(),
-        getAllBalances: vi.fn(),
-        getDatabase: vi.fn(),
-        getSettings: vi.fn(),
-    }))
+import {createRouteArguments} from "~/tests/route"
 
-vi.mock("~/db/client", () => ({getDatabase}))
+const {
+    database,
+    getAccounts,
+    getAllBalances,
+    getDatabaseFromContext,
+    getSettings,
+} = vi.hoisted(() => ({
+    database: {},
+    getAccounts: vi.fn(),
+    getAllBalances: vi.fn(),
+    getDatabaseFromContext: vi.fn(),
+    getSettings: vi.fn(),
+}))
+
+vi.mock("~/db/client", () => ({getDatabaseFromContext}))
 vi.mock("~/db/queries", () => ({getAccounts, getAllBalances, getSettings}))
 
 import {loader} from "~/routes/index"
 
 beforeEach(() => {
     vi.clearAllMocks()
-    getDatabase.mockReturnValue(database)
+    getDatabaseFromContext.mockReturnValue(database)
 })
 
 test("loads balance history and derives financial snapshots", async () => {
@@ -68,13 +75,13 @@ test("loads balance history and derives financial snapshots", async () => {
         },
     ])
 
+    const request = new Request("http://localhost/")
     const result = await loader({
-        context: {cloudflare: {env: {}}},
+        ...createRouteArguments(request),
         params: {},
-        request: new Request("http://localhost/"),
     } as Parameters<typeof loader>[0])
 
-    expect(getDatabase).toHaveBeenCalledOnce()
+    expect(getDatabaseFromContext).toHaveBeenCalledOnce()
     expect(getAccounts).toHaveBeenCalledWith(database)
     expect(getAllBalances).toHaveBeenCalledWith(database)
     expect(getSettings).toHaveBeenCalledWith(database)

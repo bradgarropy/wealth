@@ -1,11 +1,13 @@
 import {beforeEach, expect, test, vi} from "vitest"
 
+import {createRouteArguments} from "~/tests/route"
+
 const {
     archiveAccount,
     createAccount,
     database,
     deleteAccount,
-    getDatabase,
+    getDatabaseFromContext,
     unarchiveAccount,
     updateAccount,
 } = vi.hoisted(() => ({
@@ -13,12 +15,12 @@ const {
     createAccount: vi.fn(),
     database: {},
     deleteAccount: vi.fn(),
-    getDatabase: vi.fn(),
+    getDatabaseFromContext: vi.fn(),
     unarchiveAccount: vi.fn(),
     updateAccount: vi.fn(),
 }))
 
-vi.mock("~/db/client", () => ({getDatabase}))
+vi.mock("~/db/client", () => ({getDatabaseFromContext}))
 vi.mock("~/db/queries", () => ({
     archiveAccount,
     createAccount,
@@ -42,16 +44,17 @@ const createRequest = (values: Record<string, string>) => {
 }
 
 const callAction = (values: Record<string, string>) => {
+    const request = createRequest(values)
+
     return action({
-        context: {cloudflare: {env: {}}},
+        ...createRouteArguments(request),
         params: {},
-        request: createRequest(values),
     } as Parameters<typeof action>[0])
 }
 
 beforeEach(() => {
     vi.clearAllMocks()
-    getDatabase.mockReturnValue(database)
+    getDatabaseFromContext.mockReturnValue(database)
     deleteAccount.mockResolvedValue(true)
 })
 

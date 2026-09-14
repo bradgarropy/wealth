@@ -1,22 +1,24 @@
 import {beforeEach, expect, test, vi} from "vitest"
 
 import {ACCOUNT} from "~/constants"
+import {createRouteArguments} from "~/tests/route"
 
-const {database, getAllBalances, getDatabase, getSettings} = vi.hoisted(() => ({
-    database: {},
-    getAllBalances: vi.fn(),
-    getDatabase: vi.fn(),
-    getSettings: vi.fn(),
-}))
+const {database, getAllBalances, getDatabaseFromContext, getSettings} =
+    vi.hoisted(() => ({
+        database: {},
+        getAllBalances: vi.fn(),
+        getDatabaseFromContext: vi.fn(),
+        getSettings: vi.fn(),
+    }))
 
-vi.mock("~/db/client", () => ({getDatabase}))
+vi.mock("~/db/client", () => ({getDatabaseFromContext}))
 vi.mock("~/db/queries", () => ({getAllBalances, getSettings}))
 
 import {loader} from "~/routes/insights"
 
 beforeEach(() => {
     vi.clearAllMocks()
-    getDatabase.mockReturnValue(database)
+    getDatabaseFromContext.mockReturnValue(database)
     getSettings.mockResolvedValue({
         checkingBaselineCents: 2_000_000,
         defaultWindow: 52,
@@ -59,13 +61,13 @@ test("loads weekly spending and its rolling average", async () => {
         },
     ])
 
+    const request = new Request("http://localhost/insights")
     const result = await loader({
-        context: {cloudflare: {env: {}}},
+        ...createRouteArguments(request),
         params: {},
-        request: new Request("http://localhost/insights"),
     } as Parameters<typeof loader>[0])
 
-    expect(getDatabase).toHaveBeenCalledOnce()
+    expect(getDatabaseFromContext).toHaveBeenCalledOnce()
     expect(getAllBalances).toHaveBeenCalledWith(database)
     expect(getSettings).toHaveBeenCalledWith(database)
     expect(result.defaultWindow).toBe(52)
@@ -116,10 +118,10 @@ test("loads savings only on the historical allowlist and from 2026 onward", asyn
         balance("2026-01-01", ACCOUNT.CHECKING, "cash", 2_000_000),
     ])
 
+    const request = new Request("http://localhost/insights")
     const result = await loader({
-        context: {cloudflare: {env: {}}},
+        ...createRouteArguments(request),
         params: {},
-        request: new Request("http://localhost/insights"),
     } as Parameters<typeof loader>[0])
 
     expect(result.savings).toEqual([

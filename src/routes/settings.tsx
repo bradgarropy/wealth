@@ -17,7 +17,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "~/components/ui/select"
-import {getDatabase} from "~/db/client"
+import {getDatabaseFromContext} from "~/db/client"
 import {getSettings, setSettings} from "~/db/queries"
 import {defaultWindows} from "~/db/schema"
 import {settingsActionSchema} from "~/schemas/settings"
@@ -40,7 +40,7 @@ export const action = async ({context, request}: Route.ActionArgs) => {
     }
 
     try {
-        await setSettings(getDatabase(context.cloudflare.env), result.data)
+        await setSettings(getDatabaseFromContext(context), result.data)
     } catch {
         return data(
             {error: "Unable to save settings. Try again.", ok: false},
@@ -52,7 +52,7 @@ export const action = async ({context, request}: Route.ActionArgs) => {
 }
 
 export const loader = async ({context}: Route.LoaderArgs) => {
-    const settings = await getSettings(getDatabase(context.cloudflare.env))
+    const settings = await getSettings(getDatabaseFromContext(context))
 
     if (!settings) {
         throw data("Settings are not configured.", {status: 500})
