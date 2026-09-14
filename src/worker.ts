@@ -1,16 +1,8 @@
 import * as Sentry from "@sentry/cloudflare"
-import {createRequestHandler} from "react-router"
+import {createRequestHandler, RouterContextProvider} from "react-router"
 
-export {BackupWorkflow} from "./workflows/backup"
-
-declare module "react-router" {
-    export interface AppLoadContext {
-        cloudflare: {
-            env: Env
-            ctx: ExecutionContext
-        }
-    }
-}
+import {cloudflareContext} from "./context"
+export {BackupWorkflow} from "~/workflows/backup"
 
 const requestHandler = createRequestHandler(
     () => import("virtual:react-router/server-build"),
@@ -19,9 +11,10 @@ const requestHandler = createRequestHandler(
 
 const handler = {
     fetch(request, env, ctx) {
-        return requestHandler(request, {
-            cloudflare: {env, ctx},
-        })
+        const context = new RouterContextProvider()
+        context.set(cloudflareContext, {env, ctx})
+
+        return requestHandler(request, context)
     },
 } satisfies ExportedHandler<Env>
 
