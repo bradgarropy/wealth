@@ -9,22 +9,22 @@ import Route from "~/routes/capture"
 import {formatDateInput} from "~/utils/format"
 
 type CaptureAccount = Pick<Account, "category" | "id" | "name" | "type"> & {
-    defaultAmountCents: number | null
+    previousValue: number | null
 }
 
 const accounts: CaptureAccount[] = [
     {
         category: "cash" as const,
-        defaultAmountCents: null,
         id: 1,
         name: ACCOUNT.CHECKING,
+        previousValue: null,
         type: "asset" as const,
     },
     {
         category: "credit" as const,
-        defaultAmountCents: null,
         id: 2,
         name: "Apple",
+        previousValue: null,
         type: "liability" as const,
     },
 ]
@@ -260,22 +260,22 @@ test("does not create a payoff task for a zero credit balance", async () => {
     expect(screen.getByRole("button", {name: "Continue"})).toBeEnabled()
 })
 
-test("carries the emergency and mortgage balances forward", async () => {
+test("shows previous emergency and mortgage balances as placeholders", async () => {
     const user = userEvent.setup()
 
     renderRoute([
         {
             category: "savings",
-            defaultAmountCents: 6_000_000,
             id: 3,
             name: ACCOUNT.EMERGENCY,
+            previousValue: 60_000,
             type: "asset",
         },
         {
             category: "mortgage",
-            defaultAmountCents: 18_000_000,
             id: 4,
             name: "Mortgage",
+            previousValue: 180_000,
             type: "liability",
         },
     ])
@@ -283,10 +283,19 @@ test("carries the emergency and mortgage balances forward", async () => {
     await user.click(await screen.findByRole("button", {name: "Begin capture"}))
 
     expect(screen.getByText(ACCOUNT.EMERGENCY)).toBeInTheDocument()
-    expect(screen.getByLabelText("Current balance")).toHaveValue("60,000.00")
+    expect(screen.getByLabelText("Current balance")).toHaveValue("")
+    expect(screen.getByLabelText("Current balance")).toHaveAttribute(
+        "placeholder",
+        "60,000.00",
+    )
 
+    await user.type(screen.getByLabelText("Current balance"), "60000")
     await user.click(screen.getByRole("button", {name: "Next account"}))
 
     expect(screen.getByText("Mortgage")).toBeInTheDocument()
-    expect(screen.getByLabelText("Current balance")).toHaveValue("180,000.00")
+    expect(screen.getByLabelText("Current balance")).toHaveValue("")
+    expect(screen.getByLabelText("Current balance")).toHaveAttribute(
+        "placeholder",
+        "180,000.00",
+    )
 })

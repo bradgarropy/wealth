@@ -59,7 +59,9 @@ test("completes and persists the weekly capture flow", async ({
     await nextAccount.click()
 
     await expect(page.getByText(ACCOUNT.EMERGENCY, {exact: true})).toBeVisible()
-    await expect(currentBalance).toHaveValue("50,000.00")
+    await expect(currentBalance).toHaveValue("")
+    await expect(currentBalance).toHaveAttribute("placeholder", "50,000.00")
+    await currentBalance.fill("50000")
     await nextAccount.click()
 
     await expect(page.getByText(ACCOUNT.SAVINGS, {exact: true})).toBeVisible()
@@ -81,7 +83,9 @@ test("completes and persists the weekly capture flow", async ({
     await nextAccount.click()
 
     await expect(page.getByText("Mortgage", {exact: true})).toBeVisible()
-    await expect(currentBalance).toHaveValue("98,775.00")
+    await expect(currentBalance).toHaveValue("")
+    await expect(currentBalance).toHaveAttribute("placeholder", "98,775.00")
+    await currentBalance.fill("98775")
     await page.getByRole("button", {name: "Confirm balances"}).click()
 
     await expect(
