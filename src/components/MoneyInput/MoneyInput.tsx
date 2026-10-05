@@ -8,6 +8,7 @@ type MoneyInputProps = {
     id: string
     name?: string
     onValueChange?: (value: number | null) => void
+    placeholder?: string
     value?: number | null
 }
 
@@ -19,6 +20,7 @@ const MoneyInput = ({
     id,
     name,
     onValueChange,
+    placeholder,
     value,
 }: MoneyInputProps) => {
     return (
@@ -37,6 +39,7 @@ const MoneyInput = ({
             id={id}
             min={0}
             name={name}
+            placeholder={placeholder}
             step={0.01}
             value={value}
             onValueChange={onValueChange}

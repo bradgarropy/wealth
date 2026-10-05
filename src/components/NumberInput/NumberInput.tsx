@@ -21,6 +21,7 @@ type NumberInputProps = {
     min?: number
     name?: string
     onValueChange?: (value: number | null) => void
+    placeholder?: string
     step?: number
     value?: number | null
 }
@@ -38,6 +39,7 @@ const NumberInput = ({
     min,
     name,
     onValueChange,
+    placeholder,
     step,
     value,
 }: NumberInputProps) => {
@@ -61,6 +63,7 @@ const NumberInput = ({
                     // eslint-disable-next-line jsx-a11y/no-autofocus -- Enabled explicitly for wizard input focus.
                     autoFocus={autoFocus}
                     id={id}
+                    placeholder={placeholder}
                     data-slot="input-group-control"
                     className="h-full min-w-0 flex-1 bg-transparent px-4 text-right text-lg tabular-nums outline-none"
                 />

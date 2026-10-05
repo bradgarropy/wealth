@@ -18,6 +18,7 @@ const BalanceInputHarness = () => {
     return (
         <BalanceInput
             account={account}
+            previousValue={1_200}
             value={value}
             onValueChange={setValue}
         />
@@ -38,6 +39,10 @@ test("renders account details and a formatted balance", () => {
     expect(screen.getByText("Current balance")).toHaveClass("text-right")
     expect(screen.getByText("$")).toBeInTheDocument()
     expect(screen.getByLabelText("Current balance")).toHaveValue("1,234.56")
+    expect(screen.getByLabelText("Current balance")).toHaveAttribute(
+        "placeholder",
+        "1,200.00",
+    )
 })
 
 test("accepts numeric values and rejects letters", async () => {

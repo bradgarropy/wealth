@@ -14,7 +14,6 @@ import {Badge} from "~/components/ui/badge"
 import {Button, buttonVariants} from "~/components/ui/button"
 import {Checkbox} from "~/components/ui/checkbox"
 import {Progress, ProgressLabel, ProgressValue} from "~/components/ui/progress"
-import {ACCOUNT} from "~/constants"
 import {getDatabaseFromContext} from "~/db/client"
 import {
     getAccounts,
@@ -133,17 +132,22 @@ export const loader = async ({context}: Route.LoaderArgs) => {
     return {
         accounts: accounts
             .filter(account => !account.archived)
-            .map(account => ({
-                category: account.category,
-                defaultAmountCents:
-                    account.name === ACCOUNT.EMERGENCY ||
-                    account.category === "mortgage"
-                        ? (latestBalancesByAccountId.get(account.id) ?? null)
-                        : null,
-                id: account.id,
-                name: account.name,
-                type: account.type,
-            })),
+            .map(account => {
+                const previousAmountCents = latestBalancesByAccountId.get(
+                    account.id,
+                )
+
+                return {
+                    category: account.category,
+                    id: account.id,
+                    name: account.name,
+                    previousValue:
+                        previousAmountCents === undefined
+                            ? null
+                            : previousAmountCents / 100,
+                    type: account.type,
+                }
+            }),
         settings,
     }
 }
@@ -154,15 +158,7 @@ const Route = ({loaderData}: Route.ComponentProps) => {
     const [date, setDate] = useState(() => formatDateInput(new Date()))
     const [step, setStep] = useState(0)
     const [balances, setBalances] = useState<Record<number, number | null>>(
-        () =>
-            Object.fromEntries(
-                accounts.map(account => [
-                    account.id,
-                    account.defaultAmountCents === null
-                        ? null
-                        : account.defaultAmountCents / 100,
-                ]),
-            ),
+        () => Object.fromEntries(accounts.map(account => [account.id, null])),
     )
     const [paidAccounts, setPaidAccounts] = useState<Record<number, boolean>>(
         {},
@@ -351,6 +347,7 @@ const Route = ({loaderData}: Route.ComponentProps) => {
                         <BalanceInput
                             key={currentAccount.id}
                             account={currentAccount}
+                            previousValue={currentAccount.previousValue}
                             value={balances[currentAccount.id]}
                             onValueChange={value =>
                                 setBalances(currentBalances => ({

@@ -4,17 +4,28 @@ import MoneyInput from "~/components/MoneyInput"
 import {Badge} from "~/components/ui/badge"
 import {Field, FieldError, FieldLabel} from "~/components/ui/field"
 import type {Account} from "~/db/queries"
+import {formatMoneyParts} from "~/utils/format"
 
 type BalanceAccount = Pick<Account, "category" | "id" | "name" | "type">
 
 type BalanceInputProps = {
     account: BalanceAccount
     onValueChange: (value: number | null) => void
+    previousValue: number | null
     value: number | null
 }
 
-const BalanceInput = ({account, onValueChange, value}: BalanceInputProps) => {
+const BalanceInput = ({
+    account,
+    onValueChange,
+    previousValue,
+    value,
+}: BalanceInputProps) => {
     const inputId = `account-${account.id}`
+    const placeholder =
+        previousValue === null
+            ? undefined
+            : formatMoneyParts(Math.round(previousValue * 100)).amount
 
     return (
         <>
@@ -43,6 +54,7 @@ const BalanceInput = ({account, onValueChange, value}: BalanceInputProps) => {
                     // eslint-disable-next-line jsx-a11y/no-autofocus -- Balance entry is the primary task on this wizard step.
                     autoFocus
                     id={inputId}
+                    placeholder={placeholder}
                     value={value}
                     onValueChange={onValueChange}
                 />
